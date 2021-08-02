@@ -1,0 +1,7 @@
+{
+  "parent": "thermal:item/fluid_reservoir",
+  "textures": {
+    "layer0": "thermal:item/tools/fluid_reservoir_active",
+    "layer1": "thermal:item/tools/fluid_reservoir_filled"
+  }
+}

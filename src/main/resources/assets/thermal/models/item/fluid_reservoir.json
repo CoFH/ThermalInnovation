@@ -1,0 +1,20 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "thermal:item/tools/fluid_reservoir"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "filled": 1
+      },
+      "model": "thermal:item/fluid_reservoir_filled"
+    },
+    {
+      "predicate": {
+        "active": 1
+      },
+      "model": "thermal:item/fluid_reservoir_active"
+    }
+  ]
+}

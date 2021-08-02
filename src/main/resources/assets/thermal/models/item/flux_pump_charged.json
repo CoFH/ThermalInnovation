@@ -1,0 +1,6 @@
+{
+  "parent": "thermal:item/flux_pump",
+  "textures": {
+    "layer1": "thermal:item/tools/flux_pump_charged"
+  }
+}
