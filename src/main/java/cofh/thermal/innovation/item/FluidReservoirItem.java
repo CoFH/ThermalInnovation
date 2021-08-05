@@ -46,10 +46,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
 
         super(builder, fluidCapacity);
 
-        // ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 8.0F + (getFluidAmount(stack) > 0 ? 0.25F : 0) + (isActive(stack) ? 0.5F : 0));
-
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("filled"), (stack, world, entity) -> getFluidAmount(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getFluidAmount(stack) > 0 && isActive(stack) ? 1F : 0F);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 3.0F + (isActive(stack) ? 0.5F : 0));
 
         numSlots = () -> ThermalConfig.storageAugments;
         augValidator = FLUID_VALIDATOR;

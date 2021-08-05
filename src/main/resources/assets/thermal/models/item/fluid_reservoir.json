@@ -1,20 +1,34 @@
 {
-  "parent": "item/generated",
+  "loader": "cofh_core:dynamic_fluid",
+  "parent": "forge:item/default",
   "textures": {
-    "layer0": "thermal:item/tools/fluid_reservoir"
+    "base": "thermal:item/tools/fluid_reservoir",
+    "fluid": "thermal:item/tools/fluid_reservoir_mask"
   },
   "overrides": [
     {
       "predicate": {
-        "filled": 1
+        "state": 0.0
       },
-      "model": "thermal:item/fluid_reservoir_filled"
+      "model": "thermal:item/fluid_reservoir_0"
     },
     {
       "predicate": {
-        "active": 1
+        "state": 0.30
       },
-      "model": "thermal:item/fluid_reservoir_active"
+      "model": "thermal:item/fluid_reservoir_1"
+    },
+    {
+      "predicate": {
+        "state": 0.50
+      },
+      "model": "thermal:item/fluid_reservoir_0_active"
+    },
+    {
+      "predicate": {
+        "state": 0.80
+      },
+      "model": "thermal:item/fluid_reservoir_1_active"
     }
   ]
 }
