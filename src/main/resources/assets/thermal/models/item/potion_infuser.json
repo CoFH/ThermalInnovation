@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "thermal:item/tools/potion_infuser"
+    "layer0": "thermal:item/potion_infuser"
   },
   "display": {
     "thirdperson_righthand": {

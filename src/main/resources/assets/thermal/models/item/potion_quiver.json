@@ -1,7 +1,7 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "thermal:item/tools/potion_quiver"
+    "layer0": "thermal:item/potion_quiver"
   },
   "display": {
     "thirdperson_righthand": {

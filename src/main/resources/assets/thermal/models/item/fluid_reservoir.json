@@ -2,8 +2,8 @@
   "loader": "cofh_core:dynamic_fluid",
   "parent": "forge:item/default",
   "textures": {
-    "base": "thermal:item/tools/fluid_reservoir",
-    "fluid": "thermal:item/tools/fluid_reservoir_mask"
+    "base": "thermal:item/fluid_reservoir",
+    "fluid": "thermal:item/fluid_reservoir_mask"
   },
   "overrides": [
     {
