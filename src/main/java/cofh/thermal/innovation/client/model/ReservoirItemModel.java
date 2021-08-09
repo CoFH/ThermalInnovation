@@ -1,13 +1,15 @@
 package cofh.thermal.innovation.client.model;
 
 import cofh.core.util.helpers.FluidHelper;
+import cofh.lib.item.ICoFHItem;
+import cofh.lib.item.IMultiModeItem;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -46,18 +48,19 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
     @Nonnull
     private final FluidStack fluidStack;
 
-    public ReservoirItemModel(FluidStack fluidStack) {
+    private final int mode;
+    private final boolean active;
+
+    public ReservoirItemModel(FluidStack fluidStack, int mode, boolean active) {
 
         this.fluidStack = fluidStack;
+        this.mode = mode;
+        this.active = active;
     }
 
-    /**
-     * Returns a new ModelDynBucket representing the given fluid, but with the same
-     * other properties (flipGas, tint, coverIsMask).
-     */
-    public ReservoirItemModel withFluid(FluidStack newFluid) {
+    public ReservoirItemModel withProperties(FluidStack newFluid, int mode, boolean active) {
 
-        return new ReservoirItemModel(newFluid);
+        return new ReservoirItemModel(newFluid, mode, active);
     }
 
     @Override
@@ -65,7 +68,15 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
 
         RenderMaterial particleLocation = owner.isTexturePresent("particle") ? owner.resolveTexture("particle") : null;
         RenderMaterial baseLocation = owner.isTexturePresent("base") ? owner.resolveTexture("base") : null;
-        RenderMaterial fluidMaskLocation = owner.isTexturePresent("fluid") ? owner.resolveTexture("fluid") : null;
+        RenderMaterial fluidMaskLocation = owner.isTexturePresent("fluid_mask") ? owner.resolveTexture("fluid_mask") : null;
+
+        RenderMaterial[] inactiveLocations = new RenderMaterial[2];
+        RenderMaterial[] activeLocations = new RenderMaterial[2];
+
+        inactiveLocations[0] = owner.isTexturePresent("mode_0") ? owner.resolveTexture("mode_0") : null;
+        inactiveLocations[1] = owner.isTexturePresent("mode_1") ? owner.resolveTexture("mode_1") : null;
+        activeLocations[0] = owner.isTexturePresent("active_0") ? owner.resolveTexture("active_0") : null;
+        activeLocations[1] = owner.isTexturePresent("active_1") ? owner.resolveTexture("active_1") : null;
 
         IModelTransform transformsFromModel = owner.getCombinedTransform();
         Fluid fluid = fluidStack.getFluid();
@@ -82,6 +93,10 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         if (baseLocation != null) {
             // build base (insidest)
             builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprites(ImmutableList.of(baseLocation), transform, spriteGetter));
+        }
+        RenderMaterial layerLocation = active ? activeLocations[mode % 2] : inactiveLocations[mode % 2];
+        if (layerLocation != null) {
+            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprites(ImmutableList.of(layerLocation), transform, spriteGetter));
         }
         if (fluidMaskLocation != null && fluidSprite != null) {
             TextureAtlasSprite templateSprite = spriteGetter.apply(fluidMaskLocation);
@@ -108,11 +123,20 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         if (owner.isTexturePresent("base")) {
             texs.add(owner.resolveTexture("base"));
         }
-        if (owner.isTexturePresent("fluid")) {
-            texs.add(owner.resolveTexture("fluid"));
+        if (owner.isTexturePresent("fluid_mask")) {
+            texs.add(owner.resolveTexture("fluid_mask"));
         }
-        if (owner.isTexturePresent("active")) {
-            texs.add(owner.resolveTexture("active"));
+        if (owner.isTexturePresent("mode_0")) {
+            texs.add(owner.resolveTexture("mode_0"));
+        }
+        if (owner.isTexturePresent("mode_1")) {
+            texs.add(owner.resolveTexture("mode_1"));
+        }
+        if (owner.isTexturePresent("active_0")) {
+            texs.add(owner.resolveTexture("active_0"));
+        }
+        if (owner.isTexturePresent("active_1")) {
+            texs.add(owner.resolveTexture("active_1"));
         }
         return texs;
     }
@@ -147,14 +171,14 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
                 }
             }
             // create new model with correct liquid
-            return new ReservoirItemModel(stack);
+            return new ReservoirItemModel(stack, 0, false);
         }
 
     }
 
     private static final class ContainedFluidOverrideHandler extends ItemOverrideList {
 
-        private final Map<List<Integer>, IBakedModel> cache = Maps.newHashMap(); // contains all the baked models since they'll never change
+        private final Map<List<Integer>, IBakedModel> cache = new Object2ObjectOpenHashMap<>(); // contains all the baked models since they'll never change
         private final ItemOverrideList nested;
         private final ModelBakery bakery;
         private final IModelConfiguration owner;
@@ -171,17 +195,18 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         @Override
         public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
 
-            IBakedModel overriden = nested.getOverrideModel(originalModel, stack, world, entity);
+            IBakedModel overrideModel = nested.getOverrideModel(originalModel, stack, world, entity);
+            IBakedModel hashModel = overrideModel == null ? originalModel : overrideModel;
 
-            if (overriden != originalModel) {
-                return overriden;
-            }
+            int mode = ((IMultiModeItem) stack.getItem()).getMode(stack);
+            boolean active = ((ICoFHItem) stack.getItem()).isActive(stack);
+
             return FluidHelper.getFluidContainedInItem(stack)
                     .map(fluidStack -> {
-                        List<Integer> fluidHash = Arrays.asList(overriden.hashCode(), FluidHelper.fluidHashcode(fluidStack));
+                        List<Integer> fluidHash = Arrays.asList(hashModel.hashCode(), FluidHelper.fluidHashcode(fluidStack));
                         if (!cache.containsKey(fluidHash)) {
-                            ReservoirItemModel unbaked = this.parent.withFluid(fluidStack);
-                            IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation(ID_COFH_CORE, "fluid_container_override"));
+                            ReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active);
+                            IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation(ID_COFH_CORE, "reservoir_override"));
                             cache.put(fluidHash, bakedModel);
                             return bakedModel;
                         }

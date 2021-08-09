@@ -230,7 +230,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
     protected float getEfficiency(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 6.0F + getBaseMod(stack);
+        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 5.0F + getBaseMod(stack);
     }
 
     protected int getEnergyPerUse(ItemStack stack) {

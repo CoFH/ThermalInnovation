@@ -209,7 +209,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IMult
 
     protected float getEfficiency(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 6.0F + getBaseMod(stack);
+        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 5.0F + getBaseMod(stack);
     }
 
     protected int getEnergyPerUse(ItemStack stack) {

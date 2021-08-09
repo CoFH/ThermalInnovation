@@ -90,7 +90,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
                 continue;
             }
             equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
-                    .ifPresent(c -> this.drain(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
+                    .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
         }
     }
 
@@ -171,6 +171,11 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             }
         }
         return false;
+    }
+
+    protected FluidStack drainInternal(ItemStack container, int maxDrain, FluidAction action) {
+
+        return super.drain(container, maxDrain, action);
     }
     // endregion
 
