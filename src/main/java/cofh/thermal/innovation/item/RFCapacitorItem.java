@@ -3,6 +3,7 @@ package cofh.thermal.innovation.item;
 import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.core.util.helpers.EnergyHelper;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
@@ -17,7 +18,6 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.energy.CapabilityEnergy;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -91,7 +91,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
             if (stack.isEmpty() || equip.equals(stack)) {
                 continue;
             }
-            equip.getCapability(CapabilityEnergy.ENERGY, null)
+            equip.getCapability(EnergyHelper.getEnergySystem(), null)
                     .ifPresent(c -> this.extractEnergy(stack, c.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
         }
     }
