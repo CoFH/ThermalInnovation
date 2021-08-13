@@ -39,6 +39,8 @@ public class TInoItems {
 
         registerItem("potion_infuser", () -> new PotionInfuserItem(new Item.Properties().maxStackSize(1).group(group), fluid));
         registerItem("potion_quiver", () -> new PotionQuiverItem(new Item.Properties().maxStackSize(1).group(group), fluid, arrows));
+
+        registerItem("satchel", () -> new SatchelItem(new Item.Properties().maxStackSize(1).group(group), 15));
     }
 
     private static void registerArmor() {
