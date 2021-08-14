@@ -6,13 +6,17 @@ import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.lib.inventory.SimpleItemInv;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.filter.IFilter;
 import cofh.lib.util.filter.IFilterableItem;
 import cofh.lib.util.helpers.FilterHelper;
+import cofh.lib.util.helpers.InventoryHelper;
+import cofh.lib.util.helpers.MathHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -25,6 +29,7 @@ import net.minecraft.util.*;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
@@ -93,6 +98,55 @@ public class SatchelItem extends InventoryContainerItemAugmentable implements IF
             NetworkHooks.openGui((ServerPlayerEntity) player, this);
         }
         return true;
+    }
+
+    //    public static void onItemPickup(PlayerEvent.ItemPickupEvent event, ItemStack container) {
+    //
+    //        // TODO: Player access control
+    //
+    //        SatchelItem satchelItem = (SatchelItem) container.getItem();
+    //        ItemStack stack = event.getStack();
+    //        int count = stack.getCount();
+    //
+    //        if (satchelItem.getFilter(container).valid(stack)) {
+    //            SimpleItemInv containerInv = satchelItem.getContainerInventory(container);
+    //            ItemStack ret = InventoryHelper.insertStackIntoInventory(containerInv, stack, false);
+    //            System.out.println(ret);
+    //            stack.shrink(count - ret.getCount());
+    //
+    //            if (stack.getCount() != count) {
+    //                container.setAnimationsToGo(5);
+    //                PlayerEntity player = event.getPlayer();
+    //                player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((MathHelper.RANDOM.nextFloat() - MathHelper.RANDOM.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+    //                containerInv.write(satchelItem.getOrCreateInvTag(container));
+    //                satchelItem.onContainerInventoryChanged(container);
+    //            }
+    //        }
+    //    }
+
+    public static boolean onItemPickup(EntityItemPickupEvent event, ItemStack container) {
+
+        // TODO: Player access control
+
+        SatchelItem satchelItem = (SatchelItem) container.getItem();
+        ItemEntity eventItem = event.getItem();
+        int count = eventItem.getItem().getCount();
+
+        if (satchelItem.getFilter(container).valid(eventItem.getItem())) {
+            SimpleItemInv containerInv = satchelItem.getContainerInventory(container);
+            eventItem.setItem(InventoryHelper.insertStackIntoInventory(containerInv, eventItem.getItem(), false));
+
+            System.out.println(eventItem.getItem());
+
+            if (eventItem.getItem().getCount() != count) {
+                container.setAnimationsToGo(5);
+                PlayerEntity player = event.getPlayer();
+                player.world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((MathHelper.RANDOM.nextFloat() - MathHelper.RANDOM.nextFloat()) * 0.7F + 1.0F) * 2.0F);
+                containerInv.write(satchelItem.getOrCreateInvTag(container));
+                satchelItem.onContainerInventoryChanged(container);
+            }
+        }
+        return eventItem.getItem().getCount() != count;
     }
 
     @Override
