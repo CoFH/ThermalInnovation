@@ -33,7 +33,7 @@ import java.util.List;
 
 import static cofh.lib.util.constants.Constants.BUCKET_VOLUME;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
-import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_VALIDATOR;
+import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_STORAGE_VALIDATOR;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
@@ -49,7 +49,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 3.0F + (isActive(stack) ? 0.5F : 0));
 
         numSlots = () -> ThermalConfig.storageAugments;
-        augValidator = FLUID_VALIDATOR;
+        augValidator = FLUID_STORAGE_VALIDATOR;
     }
 
     @Override

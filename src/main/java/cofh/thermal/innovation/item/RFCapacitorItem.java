@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
-import static cofh.thermal.lib.common.ThermalAugmentRules.ENERGY_VALIDATOR;
+import static cofh.thermal.lib.common.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
 
 public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
 
@@ -38,7 +38,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 6.0F + (isActive(stack) ? 0.5F : 0));
 
         numSlots = () -> ThermalConfig.storageAugments;
-        augValidator = ENERGY_VALIDATOR;
+        augValidator = ENERGY_STORAGE_VALIDATOR;
     }
 
     @Override
