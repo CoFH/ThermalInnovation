@@ -8,6 +8,7 @@ import cofh.lib.capability.CapabilityArchery;
 import cofh.lib.capability.IArcheryAmmoItem;
 import cofh.lib.fluid.FluidContainerItemWrapper;
 import cofh.lib.fluid.IFluidContainerItem;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
@@ -47,7 +48,7 @@ import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
-public class PotionQuiverItem extends FluidContainerItemAugmentable implements IMultiModeItem {
+public class PotionQuiverItem extends FluidContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
 
     protected static final int MB_PER_USE = 50;
 
@@ -57,10 +58,9 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
 
         this(builder, fluidCapacity, arrowCapacity, FluidHelper::hasPotionTag);
 
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("arrows"), (stack, world, entity) -> getStoredArrows(stack) / (float) getMaxArrows(stack));
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("filled"), (stack, world, entity) -> getFluidAmount(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getFluidAmount(stack) > 0 && getMode(stack) > 0 ? 1F : 0F);
-
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getFluidAmount(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
@@ -216,6 +216,20 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         if (arrowExcess > 0) {
             removeArrows(container, arrowExcess, false);
         }
+    }
+    // endregion
+
+    // region IColorableItem
+    @Override
+    public int getColor(ItemStack item, int colorIndex) {
+
+        if (colorIndex == 0) {
+            CompoundNBT nbt = item.getChildTag("display");
+            return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
+        } else if (colorIndex == 2) {
+            return getFluidAmount(item) > 0 ? getFluid(item).getFluid().getAttributes().getColor(getFluid(item)) : 0xFFFFFF;
+        }
+        return 0xFFFFFF;
     }
     // endregion
 

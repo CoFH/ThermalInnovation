@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CRC",
+    "GBG",
+    " P "
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "C": {
+      "tag": "forge:ingots/copper"
+    },
+    "G": {
+      "tag": "forge:glass"
+    },
+    "P": {
+      "item": "thermal:redstone_servo"
+    },
+    "R": {
+      "item": "thermal:cured_rubber"
+    }
+  },
+  "result": {
+    "item": "thermal:fluid_reservoir"
+  }
+}

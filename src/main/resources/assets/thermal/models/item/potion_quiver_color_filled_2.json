@@ -1,0 +1,6 @@
+{
+  "parent": "thermal:item/potion_quiver_filled_2",
+  "textures": {
+    "layer0": "thermal:item/potion_quiver_color"
+  }
+}

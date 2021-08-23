@@ -1,6 +1,6 @@
 {
   "parent": "thermal:item/potion_quiver",
   "textures": {
-    "layer1": "thermal:item/potion_quiver_arrows_2"
+    "layer2": "thermal:item/potion_quiver_arrows_2"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "thermal:item/flux_saw",
   "textures": {
-    "layer1": "thermal:item/flux_saw_charged"
+    "layer2": "thermal:item/flux_saw_charged"
   }
 }

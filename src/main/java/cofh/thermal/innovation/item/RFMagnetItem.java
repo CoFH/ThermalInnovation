@@ -5,6 +5,7 @@ import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.RayTracer;
 import cofh.lib.util.Utils;
@@ -17,6 +18,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -43,7 +45,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFilterableItem, IMultiModeItem {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem {
 
     protected static final int MAP_CAPACITY = 64;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);
@@ -61,8 +63,9 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("charged"), (stack, world, entity) -> getEnergyStored(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getEnergyStored(stack) > 0 && getMode(stack) > 0 ? 1F : 0F);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);

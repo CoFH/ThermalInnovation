@@ -1,44 +1,81 @@
 {
   "parent": "item/generated",
   "textures": {
-    "layer0": "thermal:item/flux_capacitor"
+    "layer0": "thermal:item/flux_capacitor",
+    "layer1": "thermal:item/flux_capacitor_outline",
+    "layer2": "thermal:item/flux_capacitor_0"
   },
   "overrides": [
     {
       "predicate": {
-        "state": 0.0
-      },
-      "model": "thermal:item/flux_capacitor_0"
-    },
-    {
-      "predicate": {
-        "state": 0.15
+        "state": 0.125
       },
       "model": "thermal:item/flux_capacitor_1"
     },
     {
       "predicate": {
-        "state": 0.30
+        "state": 0.25
       },
       "model": "thermal:item/flux_capacitor_2"
     },
     {
       "predicate": {
-        "state": 0.50
+        "state": 0.5
       },
       "model": "thermal:item/flux_capacitor_0_active"
     },
     {
       "predicate": {
-        "state": 0.65
+        "state": 0.6125
       },
       "model": "thermal:item/flux_capacitor_1_active"
     },
     {
       "predicate": {
-        "state": 0.80
+        "state": 0.75
       },
       "model": "thermal:item/flux_capacitor_2_active"
+    },
+    {
+      "predicate": {
+        "color": 1
+      },
+      "model": "thermal:item/flux_capacitor_color_0"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.125
+      },
+      "model": "thermal:item/flux_capacitor_color_1"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.25
+      },
+      "model": "thermal:item/flux_capacitor_color_2"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.5
+      },
+      "model": "thermal:item/flux_capacitor_color_0_active"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.6125
+      },
+      "model": "thermal:item/flux_capacitor_color_1_active"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.75
+      },
+      "model": "thermal:item/flux_capacitor_color_2_active"
     }
   ]
 }

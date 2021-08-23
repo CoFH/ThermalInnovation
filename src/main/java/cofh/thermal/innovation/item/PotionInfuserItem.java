@@ -4,6 +4,7 @@ import cofh.core.item.FluidContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
@@ -11,6 +12,7 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -36,7 +38,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 
-public class PotionInfuserItem extends FluidContainerItemAugmentable implements IMultiModeItem {
+public class PotionInfuserItem extends FluidContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
 
     protected static final int TIME_CONSTANT = 32;
 
@@ -47,9 +49,8 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
 
         this(builder, fluidCapacity, FluidHelper::hasPotionTag);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("filled"), (stack, world, entity) -> getFluidAmount(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getFluidAmount(stack) > 0 && getMode(stack) > 0 ? 1F : 0F);
-
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getFluidAmount(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
@@ -213,6 +214,20 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
         player.swingArm(hand);
         stack.setAnimationsToGo(5);
         return true;
+    }
+    // endregion
+
+    // region IColorableItem
+    @Override
+    public int getColor(ItemStack item, int colorIndex) {
+
+        if (colorIndex == 0) {
+            CompoundNBT nbt = item.getChildTag("display");
+            return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
+        } else if (colorIndex == 2) {
+            return getFluidAmount(item) > 0 ? getFluid(item).getFluid().getAttributes().getColor(getFluid(item)) : 0xFFFFFF;
+        }
+        return 0xFFFFFF;
     }
     // endregion
 

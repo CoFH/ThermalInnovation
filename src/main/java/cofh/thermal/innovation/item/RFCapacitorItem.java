@@ -4,6 +4,7 @@ import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.EnergyHelper;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
@@ -11,6 +12,7 @@ import com.google.common.collect.Iterables;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.util.*;
@@ -26,7 +28,7 @@ import java.util.List;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
 
-public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
+public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
 
     protected static final int EQUIPMENT = 0;
     protected static final int INVENTORY = 1;
@@ -35,7 +37,9 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 6.0F + (isActive(stack) ? 0.5F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (isActive(stack) ? 0.5F : 0) + (getMode(stack) / 8.0F));
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.storageAugments;
         augValidator = ENERGY_STORAGE_VALIDATOR;

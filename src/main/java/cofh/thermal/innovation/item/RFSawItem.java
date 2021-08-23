@@ -7,6 +7,7 @@ import cofh.lib.capability.CapabilityAreaEffect;
 import cofh.lib.capability.IAreaEffect;
 import cofh.lib.energy.EnergyContainerItemWrapper;
 import cofh.lib.energy.IEnergyContainerItem;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.constants.ToolTypes;
@@ -31,6 +32,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.AxeItem;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -55,7 +57,7 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
+public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
 
     protected static final Set<ToolType> TOOL_TYPES = new ObjectOpenHashSet<>();
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
@@ -81,8 +83,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("charged"), (stack, world, entity) -> getEnergyStored(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getEnergyStored(stack) > 0 && hasActiveTag(stack) ? 1F : 0F);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);

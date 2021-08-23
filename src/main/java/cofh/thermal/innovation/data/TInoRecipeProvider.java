@@ -35,6 +35,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         DeferredRegisterCoFH<Item> reg = ITEMS;
 
+        Item redstoneServo = reg.get("redstone_servo");
         Item rfCoil = reg.get("rf_coil");
 
         ShapedRecipeBuilder.shapedRecipe(reg.get("flux_drill"))
@@ -80,6 +81,18 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .patternLine("LIL")
                 .patternLine(" P ")
                 .addCriterion("has_rf_coil", hasItem(rfCoil))
+                .build(consumer);
+
+        ShapedRecipeBuilder.shapedRecipe(reg.get("fluid_reservoir"))
+                .key('B', Items.BUCKET)
+                .key('C', ItemTagsCoFH.INGOTS_COPPER)
+                .key('G', Tags.Items.GLASS)
+                .key('P', redstoneServo)
+                .key('R', reg.get("cured_rubber"))
+                .patternLine("CRC")
+                .patternLine("GBG")
+                .patternLine(" P ")
+                .addCriterion("has_redstone_servo", hasItem(redstoneServo))
                 .build(consumer);
 
         ShapedRecipeBuilder.shapedRecipe(reg.get("potion_infuser"))
