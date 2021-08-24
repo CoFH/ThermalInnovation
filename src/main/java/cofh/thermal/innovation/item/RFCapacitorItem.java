@@ -1,5 +1,6 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
@@ -96,7 +97,19 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
                 continue;
             }
             equip.getCapability(EnergyHelper.getEnergySystem(), null)
-                    .ifPresent(c -> this.extractEnergy(stack, c.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
+                    .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
+        }
+        if (getMode(stack) != INVENTORY) {
+            CuriosProxy.getAllWorn(player).ifPresent(c -> {
+                for (int i = 0; i < c.getSlots(); ++i) {
+                    ItemStack equip = c.getStackInSlot(i);
+                    if (stack.isEmpty() || equip.equals(stack)) {
+                        continue;
+                    }
+                    equip.getCapability(EnergyHelper.getEnergySystem(), null)
+                            .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
+                }
+            });
         }
     }
 

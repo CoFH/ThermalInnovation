@@ -1,5 +1,6 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.FluidContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
@@ -46,7 +47,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
 
         super(builder, fluidCapacity);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 3.0F + (isActive(stack) ? 0.5F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> getMode(stack) / 4.0F + (isActive(stack) ? 0.5F : 0));
 
         numSlots = () -> ThermalConfig.storageAugments;
         augValidator = FLUID_STORAGE_VALIDATOR;
@@ -92,6 +93,16 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
                     .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
         }
+        CuriosProxy.getAllWorn(player).ifPresent(c -> {
+            for (int i = 0; i < c.getSlots(); ++i) {
+                ItemStack equip = c.getStackInSlot(i);
+                if (stack.isEmpty() || equip.equals(stack)) {
+                    continue;
+                }
+                equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
+                        .ifPresent(f -> this.drainInternal(stack, f.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
+            }
+        });
     }
 
     // region HELPERS

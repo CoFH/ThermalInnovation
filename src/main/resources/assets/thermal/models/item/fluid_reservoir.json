@@ -2,7 +2,7 @@
   "loader": "thermal:reservoir",
   "parent": "forge:item/default",
   "textures": {
-    "base": "thermal:item/fluid_reservoir",
+    "base": "thermal:item/fluid_reservoir_0",
     "fluid_mask": "thermal:item/fluid_reservoir_mask",
     "mode_0": "thermal:item/fluid_reservoir_0",
     "mode_1": "thermal:item/fluid_reservoir_1",
@@ -12,13 +12,7 @@
   "overrides": [
     {
       "predicate": {
-        "state": 0.0
-      },
-      "model": "thermal:item/fluid_reservoir_0"
-    },
-    {
-      "predicate": {
-        "state": 0.30
+        "state": 0.25
       },
       "model": "thermal:item/fluid_reservoir_1"
     },
@@ -30,7 +24,7 @@
     },
     {
       "predicate": {
-        "state": 0.80
+        "state": 0.75
       },
       "model": "thermal:item/fluid_reservoir_1_active"
     }

@@ -270,12 +270,15 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             ItemStack arrowStack;
 
             if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= MB_PER_USE) {
-                List<EffectInstance> effects = new ArrayList<>();
-                for (EffectInstance effect : PotionUtils.getEffectsFromTag(fluid.getTag())) {
-                    effects.add(new EffectInstance(effect.getPotion(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.doesShowParticles()));
+                if (fluid.getTag().contains("CustomPotionEffects")) {
+                    List<EffectInstance> effects = new ArrayList<>();
+                    for (EffectInstance effect : PotionUtils.getEffectsFromTag(fluid.getTag())) {
+                        effects.add(new EffectInstance(effect.getPotion(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.doesShowParticles()));
+                    }
+                    arrowStack = PotionUtils.appendEffects(new ItemStack(Items.TIPPED_ARROW), effects);
+                } else {
+                    arrowStack = PotionUtils.addPotionToItemStack(new ItemStack(Items.TIPPED_ARROW), PotionUtils.getPotionTypeFromNBT(fluid.getTag()));
                 }
-                arrowStack = PotionUtils.appendEffects(new ItemStack(Items.TIPPED_ARROW), effects);
-                // arrowStack = PotionUtils.addPotionToItemStack(new ItemStack(Items.TIPPED_ARROW), PotionUtils.getPotionTypeFromNBT(fluid.getTag()));
                 return ((TippedArrowItem) arrowStack.getItem()).createArrow(world, arrowStack, shooter);
             }
             arrowStack = new ItemStack(Items.ARROW);
