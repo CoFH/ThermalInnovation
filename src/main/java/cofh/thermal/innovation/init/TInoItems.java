@@ -4,7 +4,6 @@ import cofh.thermal.innovation.item.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 
-import static cofh.lib.util.constants.Constants.ID_THERMAL_EXPANSION;
 import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.util.RegistrationHelper.registerItem;
 import static cofh.thermal.lib.common.ThermalItemGroups.THERMAL_TOOLS;
