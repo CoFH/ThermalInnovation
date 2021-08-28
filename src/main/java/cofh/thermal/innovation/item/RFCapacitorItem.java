@@ -38,7 +38,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (isActive(stack) ? 0.5F : 0) + (getMode(stack) / 8.0F));
         ProxyUtils.registerColorable(this);
 
@@ -50,20 +50,20 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
     protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 
         tooltip.add(isActive(stack)
-                ? new TranslationTextComponent("info.cofh_use_sneak_deactivate").mergeStyle(TextFormatting.DARK_GRAY)
-                : new TranslationTextComponent("info.cofh.use_sneak_activate").mergeStyle(TextFormatting.DARK_GRAY));
+                ? new TranslationTextComponent("info.cofh_use_sneak_deactivate").withStyle(TextFormatting.DARK_GRAY)
+                : new TranslationTextComponent("info.cofh.use_sneak_activate").withStyle(TextFormatting.DARK_GRAY));
 
-        tooltip.add(getTextComponent("info.thermal.capacitor.mode." + getMode(stack)).mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.capacitor.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        return useDelegate(stack, playerIn) ? ActionResult.resultSuccess(stack) : ActionResult.resultPass(stack);
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        return useDelegate(stack, playerIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
     @Override
@@ -83,13 +83,13 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
 
         switch (getMode(stack)) {
             case EQUIPMENT:
-                equipment = player.getEquipmentAndArmor();
+                equipment = player.getAllSlots();
                 break;
             case INVENTORY:
-                equipment = player.inventory.mainInventory;
+                equipment = player.inventory.items;
                 break;
             default:
-                equipment = Iterables.concat(Arrays.asList(player.inventory.mainInventory, player.inventory.armorInventory, player.inventory.offHandInventory));
+                equipment = Iterables.concat(Arrays.asList(player.inventory.items, player.inventory.armor, player.inventory.offhand));
         }
         int extract = this.getExtract(stack);
         for (ItemStack equip : equipment) {
@@ -97,7 +97,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
                 continue;
             }
             equip.getCapability(EnergyHelper.getEnergySystem(), null)
-                    .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
+                    .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
         }
         if (getMode(stack) != INVENTORY) {
             CuriosProxy.getAllWorn(player).ifPresent(c -> {
@@ -107,7 +107,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
                         continue;
                     }
                     equip.getCapability(EnergyHelper.getEnergySystem(), null)
-                            .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.isCreativeMode));
+                            .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
                 }
             });
         }
@@ -121,7 +121,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
         }
         if (player.isSecondaryUseActive()) {
             setActive(stack, !isActive(stack));
-            player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
+            player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
             return true;
         }
         return false;
@@ -138,7 +138,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, (isActive(stack) ? 0.7F : 0.5F) + 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, (isActive(stack) ? 0.7F : 0.5F) + 0.1F * getMode(stack));
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.capacitor.mode." + getMode(stack)));
     }
     // endregion

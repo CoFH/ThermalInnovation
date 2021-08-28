@@ -31,92 +31,92 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
     }
 
     @Override
-    protected void registerRecipes(Consumer<IFinishedRecipe> consumer) {
+    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
 
         DeferredRegisterCoFH<Item> reg = ITEMS;
 
         Item redstoneServo = reg.get("redstone_servo");
         Item rfCoil = reg.get("rf_coil");
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("flux_drill"))
-                .key('C', ItemTagsCoFH.GEARS_GOLD)
-                .key('G', ItemTagsCoFH.GEARS_TIN)
-                .key('I', Tags.Items.INGOTS_IRON)
-                .key('P', rfCoil)
-                .key('X', reg.get("drill_head"))
-                .patternLine(" X ")
-                .patternLine("ICI")
-                .patternLine("GPG")
-                .addCriterion("has_rf_coil", hasItem(rfCoil))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("flux_drill"))
+                .define('C', ItemTagsCoFH.GEARS_GOLD)
+                .define('G', ItemTagsCoFH.GEARS_TIN)
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('P', rfCoil)
+                .define('X', reg.get("drill_head"))
+                .pattern(" X ")
+                .pattern("ICI")
+                .pattern("GPG")
+                .unlockedBy("has_rf_coil", has(rfCoil))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("flux_saw"))
-                .key('C', ItemTagsCoFH.GEARS_GOLD)
-                .key('G', ItemTagsCoFH.GEARS_TIN)
-                .key('I', Tags.Items.INGOTS_IRON)
-                .key('P', rfCoil)
-                .key('X', reg.get("saw_blade"))
-                .patternLine(" X ")
-                .patternLine("ICI")
-                .patternLine("GPG")
-                .addCriterion("has_rf_coil", hasItem(rfCoil))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("flux_saw"))
+                .define('C', ItemTagsCoFH.GEARS_GOLD)
+                .define('G', ItemTagsCoFH.GEARS_TIN)
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('P', rfCoil)
+                .define('X', reg.get("saw_blade"))
+                .pattern(" X ")
+                .pattern("ICI")
+                .pattern("GPG")
+                .unlockedBy("has_rf_coil", has(rfCoil))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("flux_capacitor"))
-                .key('L', ItemTagsCoFH.INGOTS_LEAD)
-                .key('P', rfCoil)
-                .key('R', Tags.Items.DUSTS_REDSTONE)
-                .patternLine("RLR")
-                .patternLine("LPL")
-                .patternLine(" R ")
-                .addCriterion("has_rf_coil", hasItem(rfCoil))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("flux_capacitor"))
+                .define('L', ItemTagsCoFH.INGOTS_LEAD)
+                .define('P', rfCoil)
+                .define('R', Tags.Items.DUSTS_REDSTONE)
+                .pattern("RLR")
+                .pattern("LPL")
+                .pattern(" R ")
+                .unlockedBy("has_rf_coil", has(rfCoil))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("flux_magnet"))
-                .key('L', ItemTagsCoFH.INGOTS_LEAD)
-                .key('I', Tags.Items.INGOTS_IRON)
-                .key('P', rfCoil)
-                .key('R', Tags.Items.DUSTS_REDSTONE)
-                .patternLine("IRI")
-                .patternLine("LIL")
-                .patternLine(" P ")
-                .addCriterion("has_rf_coil", hasItem(rfCoil))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("flux_magnet"))
+                .define('L', ItemTagsCoFH.INGOTS_LEAD)
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('P', rfCoil)
+                .define('R', Tags.Items.DUSTS_REDSTONE)
+                .pattern("IRI")
+                .pattern("LIL")
+                .pattern(" P ")
+                .unlockedBy("has_rf_coil", has(rfCoil))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("fluid_reservoir"))
-                .key('B', Items.BUCKET)
-                .key('C', ItemTagsCoFH.INGOTS_COPPER)
-                .key('G', Tags.Items.GLASS)
-                .key('P', redstoneServo)
-                .key('R', reg.get("cured_rubber"))
-                .patternLine("CRC")
-                .patternLine("GBG")
-                .patternLine(" P ")
-                .addCriterion("has_redstone_servo", hasItem(redstoneServo))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("fluid_reservoir"))
+                .define('B', Items.BUCKET)
+                .define('C', ItemTagsCoFH.INGOTS_COPPER)
+                .define('G', Tags.Items.GLASS)
+                .define('P', redstoneServo)
+                .define('R', reg.get("cured_rubber"))
+                .pattern("CRC")
+                .pattern("GBG")
+                .pattern(" P ")
+                .unlockedBy("has_redstone_servo", has(redstoneServo))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("potion_infuser"))
-                .key('B', Items.GLASS_BOTTLE)
-                .key('C', ItemTagsCoFH.INGOTS_COPPER)
-                .key('G', ItemTagsCoFH.GEARS_SILVER)
-                .key('R', reg.get("cured_rubber"))
-                .patternLine("RBR")
-                .patternLine("CGC")
-                .patternLine(" C ")
-                .addCriterion("has_glass_bottle", hasItem(Items.GLASS_BOTTLE))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("potion_infuser"))
+                .define('B', Items.GLASS_BOTTLE)
+                .define('C', ItemTagsCoFH.INGOTS_COPPER)
+                .define('G', ItemTagsCoFH.GEARS_SILVER)
+                .define('R', reg.get("cured_rubber"))
+                .pattern("RBR")
+                .pattern("CGC")
+                .pattern(" C ")
+                .unlockedBy("has_glass_bottle", has(Items.GLASS_BOTTLE))
+                .save(consumer);
 
-        ShapedRecipeBuilder.shapedRecipe(reg.get("potion_quiver"))
-                .key('B', Items.GLASS_BOTTLE)
-                .key('C', ItemTagsCoFH.INGOTS_COPPER)
-                .key('G', ItemTagsCoFH.GEARS_SILVER)
-                .key('S', Tags.Items.STRING)
-                .key('R', reg.get("cured_rubber"))
-                .patternLine("C C")
-                .patternLine("BGS")
-                .patternLine("RCR")
-                .addCriterion("has_glass_bottle", hasItem(Items.GLASS_BOTTLE))
-                .build(consumer);
+        ShapedRecipeBuilder.shaped(reg.get("potion_quiver"))
+                .define('B', Items.GLASS_BOTTLE)
+                .define('C', ItemTagsCoFH.INGOTS_COPPER)
+                .define('G', ItemTagsCoFH.GEARS_SILVER)
+                .define('S', Tags.Items.STRING)
+                .define('R', reg.get("cured_rubber"))
+                .pattern("C C")
+                .pattern("BGS")
+                .pattern("RCR")
+                .unlockedBy("has_glass_bottle", has(Items.GLASS_BOTTLE))
+                .save(consumer);
     }
 
 }

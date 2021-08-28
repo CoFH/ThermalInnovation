@@ -57,20 +57,20 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 
         tooltip.add(isActive(stack)
-                ? new TranslationTextComponent("info.cofh_use_sneak_deactivate").mergeStyle(TextFormatting.DARK_GRAY)
-                : new TranslationTextComponent("info.cofh.use_sneak_activate").mergeStyle(TextFormatting.DARK_GRAY));
+                ? new TranslationTextComponent("info.cofh_use_sneak_deactivate").withStyle(TextFormatting.DARK_GRAY)
+                : new TranslationTextComponent("info.cofh.use_sneak_activate").withStyle(TextFormatting.DARK_GRAY));
 
-        tooltip.add(getTextComponent("info.thermal.reservoir.mode." + getMode(stack)).mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.reservoir.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.resultSuccess(stack) : ActionResult.resultPass(stack);
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
     @Override
@@ -86,12 +86,12 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             return;
         }
         PlayerEntity player = (PlayerEntity) entityIn;
-        for (ItemStack equip : player.getEquipmentAndArmor()) {
+        for (ItemStack equip : player.getAllSlots()) {
             if (stack.isEmpty() || equip.equals(stack)) {
                 continue;
             }
             equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
-                    .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
+                    .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
         }
         CuriosProxy.getAllWorn(player).ifPresent(c -> {
             for (int i = 0; i < c.getSlots(); ++i) {
@@ -100,7 +100,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
                     continue;
                 }
                 equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
-                        .ifPresent(f -> this.drainInternal(stack, f.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.isCreativeMode ? SIMULATE : EXECUTE));
+                        .ifPresent(f -> this.drainInternal(stack, f.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
             }
         });
     }
@@ -113,7 +113,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         }
         if (player.isSecondaryUseActive()) {
             setActive(stack, !isActive(stack));
-            player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
+            player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
             return true;
         }
         if (getMode(stack) == FILL) {
@@ -130,8 +130,8 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (getSpace(stack) < BUCKET_VOLUME) {
             return false;
         }
-        World world = player.getEntityWorld();
-        BlockRayTraceResult traceResult = rayTrace(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
+        World world = player.getCommandSenderWorld();
+        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
 
         if (traceResult.getType() == RayTraceResult.Type.MISS) {
             return false;
@@ -139,14 +139,14 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
             return false;
         }
-        BlockPos pos = traceResult.getPos();
-        Direction sideHit = traceResult.getFace();
-        if (world.isBlockModifiable(player, pos)) {
-            if (player.canPlayerEdit(pos, sideHit, stack)) {
+        BlockPos pos = traceResult.getBlockPos();
+        Direction sideHit = traceResult.getDirection();
+        if (world.mayInteract(player, pos)) {
+            if (player.mayUseItemAt(pos, sideHit, stack)) {
                 FluidActionResult result = FluidUtil.tryPickUpFluid(stack, player, world, pos, sideHit);
-                if (result.isSuccess() && !player.abilities.isCreativeMode) {
-                    player.setHeldItem(hand, result.getResult());
-                    player.addStat(Stats.ITEM_USED.get(this));
+                if (result.isSuccess() && !player.abilities.instabuild) {
+                    player.setItemInHand(hand, result.getResult());
+                    player.awardStat(Stats.ITEM_USED.get(this));
                     return true;
                 }
             }
@@ -159,8 +159,8 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (getFluidAmount(stack) < BUCKET_VOLUME) {
             return false;
         }
-        World world = player.getEntityWorld();
-        BlockRayTraceResult traceResult = rayTrace(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
+        World world = player.getCommandSenderWorld();
+        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
 
         if (traceResult.getType() == RayTraceResult.Type.MISS) {
             return false;
@@ -168,15 +168,15 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
             return false;
         }
-        BlockPos pos = traceResult.getPos();
-        Direction sideHit = traceResult.getFace();
-        if (world.isBlockModifiable(player, pos)) {
-            BlockPos targetPos = pos.offset(sideHit);
-            if (player.canPlayerEdit(targetPos, sideHit.getOpposite(), stack)) {
+        BlockPos pos = traceResult.getBlockPos();
+        Direction sideHit = traceResult.getDirection();
+        if (world.mayInteract(player, pos)) {
+            BlockPos targetPos = pos.relative(sideHit);
+            if (player.mayUseItemAt(targetPos, sideHit.getOpposite(), stack)) {
                 FluidActionResult result = FluidUtil.tryPlaceFluid(player, world, hand, targetPos, stack, new FluidStack(getFluid(stack), BUCKET_VOLUME));
-                if (result.isSuccess() && !player.abilities.isCreativeMode) {
-                    player.setHeldItem(hand, result.getResult());
-                    player.addStat(Stats.ITEM_USED.get(this));
+                if (result.isSuccess() && !player.abilities.instabuild) {
+                    player.setItemInHand(hand, result.getResult());
+                    player.awardStat(Stats.ITEM_USED.get(this));
                     return true;
                 }
             }
@@ -215,7 +215,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), getMode(stack) == FILL ? SoundEvents.ITEM_BOTTLE_FILL : SoundEvents.ITEM_BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
+        player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.reservoir.mode." + getMode(stack)));
     }
     // endregion

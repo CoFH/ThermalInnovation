@@ -58,7 +58,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
 
         this(builder, fluidCapacity, arrowCapacity, FluidHelper::hasPotionTag);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("arrows"), (stack, world, entity) -> getStoredArrows(stack) / (float) getMaxArrows(stack));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getFluidAmount(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
@@ -76,10 +76,10 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     @Override
     protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 
-        tooltip.add(getTextComponent("info.thermal.quiver.use").mergeStyle(TextFormatting.GRAY));
-        tooltip.add(getTextComponent("info.thermal.quiver.use.sneak").mergeStyle(TextFormatting.DARK_GRAY));
+        tooltip.add(getTextComponent("info.thermal.quiver.use").withStyle(TextFormatting.GRAY));
+        tooltip.add(getTextComponent("info.thermal.quiver.use.sneak").withStyle(TextFormatting.DARK_GRAY));
 
-        tooltip.add(getTextComponent("info.thermal.quiver.mode." + getMode(stack)).mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.quiver.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         tooltip.add(getTextComponent(localize("info.cofh.arrows") + ": " + (isCreative(stack, ITEM)
@@ -88,8 +88,8 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
 
         FluidStack fluid = getFluid(stack);
         List<EffectInstance> effects = new ArrayList<>();
-        for (EffectInstance effect : PotionUtils.getEffectsFromTag(fluid.getTag())) {
-            effects.add(new EffectInstance(effect.getPotion(), getEffectDuration(effect, stack), getEffectAmplifier(effect, stack), effect.isAmbient(), effect.doesShowParticles()));
+        for (EffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
+            effects.add(new EffectInstance(effect.getEffect(), getEffectDuration(effect, stack), getEffectAmplifier(effect, stack), effect.isAmbient(), effect.isVisible()));
         }
         potionTooltip(stack, worldIn, tooltip, flagIn, effects, 0.125F);
     }
@@ -110,10 +110,10 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.resultSuccess(stack) : ActionResult.resultPass(stack);
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     // region HELPERS
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -151,14 +151,14 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
                 }
             }
         } else {
-            if (player.abilities.isCreativeMode) {
+            if (player.abilities.instabuild) {
                 putArrows(stack, getMaxArrows(stack), false);
             } else {
                 ItemStack arrows = findArrows(player);
                 arrows.shrink(putArrows(stack, arrows.getCount(), false));
             }
         }
-        stack.setAnimationsToGo(5);
+        stack.setPopTime(5);
         return true;
     }
 
@@ -224,7 +224,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     public int getColor(ItemStack item, int colorIndex) {
 
         if (colorIndex == 0) {
-            CompoundNBT nbt = item.getChildTag("display");
+            CompoundNBT nbt = item.getTagElement("display");
             return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
         } else if (colorIndex == 2) {
             return getFluidAmount(item) > 0 ? getFluid(item).getFluid().getAttributes().getColor(getFluid(item)) : 0xFFFFFF;
@@ -237,7 +237,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.quiver.mode." + getMode(stack)));
     }
     // endregion
@@ -256,7 +256,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         public void onArrowLoosed(PlayerEntity shooter) {
 
             if (shooter != null) {
-                if (!shooter.abilities.isCreativeMode) {
+                if (!shooter.abilities.instabuild) {
                     removeArrows(container, 1, false);
                     drain(MB_PER_USE, getMode(container) == 1 ? EXECUTE : SIMULATE);
                 }
@@ -272,12 +272,12 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= MB_PER_USE) {
                 if (fluid.getTag().contains("CustomPotionEffects")) {
                     List<EffectInstance> effects = new ArrayList<>();
-                    for (EffectInstance effect : PotionUtils.getEffectsFromTag(fluid.getTag())) {
-                        effects.add(new EffectInstance(effect.getPotion(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.doesShowParticles()));
+                    for (EffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
+                        effects.add(new EffectInstance(effect.getEffect(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));
                     }
-                    arrowStack = PotionUtils.appendEffects(new ItemStack(Items.TIPPED_ARROW), effects);
+                    arrowStack = PotionUtils.setCustomEffects(new ItemStack(Items.TIPPED_ARROW), effects);
                 } else {
-                    arrowStack = PotionUtils.addPotionToItemStack(new ItemStack(Items.TIPPED_ARROW), PotionUtils.getPotionTypeFromNBT(fluid.getTag()));
+                    arrowStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW), PotionUtils.getPotion(fluid.getTag()));
                 }
                 return ((TippedArrowItem) arrowStack.getItem()).createArrow(world, arrowStack, shooter);
             }
@@ -288,7 +288,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         @Override
         public boolean isEmpty(PlayerEntity shooter) {
 
-            if (isCreative(container, ITEM) || (shooter != null && shooter.abilities.isCreativeMode)) {
+            if (isCreative(container, ITEM) || (shooter != null && shooter.abilities.instabuild)) {
                 return false;
             }
             return getStoredArrows(container) <= 0;
@@ -297,7 +297,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         @Override
         public boolean isInfinite(ItemStack bow, PlayerEntity shooter) {
 
-            return shooter != null && shooter.abilities.isCreativeMode || getItemEnchantmentLevel(Enchantments.INFINITY, bow) > 0;
+            return shooter != null && shooter.abilities.instabuild || getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bow) > 0;
         }
 
         // region ICapabilityProvider

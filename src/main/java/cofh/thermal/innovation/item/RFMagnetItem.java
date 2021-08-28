@@ -63,7 +63,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
@@ -74,21 +74,21 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 
-        tooltip.add(getTextComponent("info.thermal.magnet.use").mergeStyle(TextFormatting.GRAY));
+        tooltip.add(getTextComponent("info.thermal.magnet.use").withStyle(TextFormatting.GRAY));
         if (FilterHelper.hasFilter(stack)) {
-            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").mergeStyle(TextFormatting.DARK_GRAY));
+            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").withStyle(TextFormatting.DARK_GRAY));
         }
-        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.resultSuccess(stack) : ActionResult.resultPass(stack);
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
     @Override
@@ -108,40 +108,40 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         }
         PlayerEntity player = (PlayerEntity) entityIn;
 
-        if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.isCreativeMode) {
+        if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.instabuild) {
             return;
         }
         int radius = getRadius(stack);
         int radSq = radius * radius;
 
-        AxisAlignedBB area = new AxisAlignedBB(player.getPosition().add(-radius, -radius, -radius), player.getPosition().add(1 + radius, 1 + radius, 1 + radius));
-        List<ItemEntity> items = worldIn.getEntitiesWithinAABB(ItemEntity.class, area, EntityPredicates.IS_ALIVE);
+        AxisAlignedBB area = new AxisAlignedBB(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
+        List<ItemEntity> items = worldIn.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
 
         if (Utils.isClientWorld(worldIn)) {
             for (ItemEntity item : items) {
-                if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
+                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
                     continue;
                 }
-                if (item.getPositionVec().squareDistanceTo(player.getPositionVec()) <= radSq) {
-                    worldIn.addParticle(RedstoneParticleData.REDSTONE_DUST, item.getPosX(), item.getPosY(), item.getPosZ(), 0, 0, 0);
+                if (item.position().distanceToSqr(player.position()) <= radSq) {
+                    worldIn.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                 }
             }
         } else {
             Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
             int itemCount = 0;
             for (ItemEntity item : items) {
-                if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                     continue;
                 }
-                if (item.getThrowerId() == null || !item.getThrowerId().equals(player.getUniqueID()) || item.age >= PICKUP_DELAY) {
-                    if (item.getPositionVec().squareDistanceTo(player.getPositionVec()) <= radSq) {
-                        item.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
-                        item.setPickupDelay(0);
+                if (item.getThrower() == null || !item.getThrower().equals(player.getUUID()) || item.age >= PICKUP_DELAY) {
+                    if (item.position().distanceToSqr(player.position()) <= radSq) {
+                        item.setPos(player.getX(), player.getY(), player.getZ());
+                        item.setPickUpDelay(0);
                         ++itemCount;
                     }
                 }
             }
-            if (!player.abilities.isCreativeMode) {
+            if (!player.abilities.instabuild) {
                 extractEnergy(stack, ENERGY_PER_ITEM * itemCount, false);
             }
         }
@@ -159,7 +159,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                 return true;
             }
             return false;
-        } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.isCreativeMode) {
+        } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.instabuild) {
             BlockRayTraceResult traceResult = RayTracer.retrace(player, REACH);
             if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
                 return false;
@@ -167,38 +167,38 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             int radius = getRadius(stack);
             int radSq = radius * radius;
 
-            World world = player.getEntityWorld();
-            BlockPos pos = traceResult.getPos();
+            World world = player.getCommandSenderWorld();
+            BlockPos pos = traceResult.getBlockPos();
 
-            AxisAlignedBB area = new AxisAlignedBB(pos.add(-radius, -radius, -radius), pos.add(1 + radius, 1 + radius, 1 + radius));
-            List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, area, EntityPredicates.IS_ALIVE);
+            AxisAlignedBB area = new AxisAlignedBB(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
+            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
 
             if (Utils.isClientWorld(world)) {
                 for (ItemEntity item : items) {
-                    if (item.getPositionVec().squareDistanceTo(traceResult.getHitVec()) <= radSq) {
-                        world.addParticle(RedstoneParticleData.REDSTONE_DUST, item.getPosX(), item.getPosY(), item.getPosZ(), 0, 0, 0);
+                    if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
+                        world.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                     }
                 }
             } else {
                 Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
                 int itemCount = 0;
                 for (ItemEntity item : items) {
-                    if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                    if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                         continue;
                     }
-                    if (item.getPositionVec().squareDistanceTo(traceResult.getHitVec()) <= radSq) {
-                        item.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
-                        item.setPickupDelay(0);
+                    if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
+                        item.setPos(player.getX(), player.getY(), player.getZ());
+                        item.setPickUpDelay(0);
                         ++itemCount;
                     }
                 }
-                if (!player.abilities.isCreativeMode && itemCount > 0) {
+                if (!player.abilities.instabuild && itemCount > 0) {
                     extractEnergy(stack, ENERGY_PER_USE + ENERGY_PER_ITEM * itemCount, false);
                 }
             }
-            player.swingArm(hand);
-            stack.setAnimationsToGo(5);
-            player.world.playSound(null, player.getPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 1.0F);
+            player.swing(hand);
+            stack.setPopTime(5);
+            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 1.0F);
         }
         return true;
     }
@@ -213,7 +213,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -268,7 +268,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion

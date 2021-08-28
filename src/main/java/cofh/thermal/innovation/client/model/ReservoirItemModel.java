@@ -193,9 +193,9 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         }
 
         @Override
-        public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
+        public IBakedModel resolve(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
 
-            IBakedModel overrideModel = nested.getOverrideModel(originalModel, stack, world, entity);
+            IBakedModel overrideModel = nested.resolve(originalModel, stack, world, entity);
             IBakedModel hashModel = overrideModel == null ? originalModel : overrideModel;
 
             int mode = ((IMultiModeItem) stack.getItem()).getMode(stack);

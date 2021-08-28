@@ -69,20 +69,20 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         TOOL_TYPES.add(ToolType.PICKAXE);
         TOOL_TYPES.add(ToolType.SHOVEL);
 
-        MATERIALS.add(Material.ANVIL);
-        MATERIALS.add(Material.IRON);
-        MATERIALS.add(Material.ROCK);
+        MATERIALS.add(Material.HEAVY_METAL);
+        MATERIALS.add(Material.METAL);
+        MATERIALS.add(Material.STONE);
 
-        VALID_ENCHANTS.add(Enchantments.EFFICIENCY);
+        VALID_ENCHANTS.add(Enchantments.BLOCK_EFFICIENCY);
         VALID_ENCHANTS.add(Enchantments.SILK_TOUCH);
-        VALID_ENCHANTS.add(Enchantments.FORTUNE);
+        VALID_ENCHANTS.add(Enchantments.BLOCK_FORTUNE);
     }
 
     public RFDrillItem(Properties builder, int maxEnergy, int maxTransfer) {
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
@@ -95,9 +95,9 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslationTextComponent("info.cofh.single_block").mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.single_block").withStyle(TextFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius).mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
@@ -141,26 +141,26 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
         Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
         if (slot == EquipmentSlotType.MAINHAND) {
-            multimap.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", getAttackDamage(stack), AttributeModifier.Operation.ADDITION));
-            multimap.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", getAttackSpeed(stack), AttributeModifier.Operation.ADDITION));
+            multimap.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", getAttackDamage(stack), AttributeModifier.Operation.ADDITION));
+            multimap.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", getAttackSpeed(stack), AttributeModifier.Operation.ADDITION));
         }
         return multimap;
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 
-        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.isCreativeMode) {
+        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.instabuild) {
             extractEnergy(stack, getEnergyPerUse(stack) * 2, false);
         }
         return true;
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
+    public boolean mineBlock(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
 
-        if (Utils.isServerWorld(worldIn) && state.getBlockHardness(worldIn, pos) != 0.0F) {
-            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.isCreativeMode) {
+        if (Utils.isServerWorld(worldIn) && state.getDestroySpeed(worldIn, pos) != 0.0F) {
+            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.instabuild) {
                 extractEnergy(stack, getEnergyPerUse(stack), false);
             }
         }
@@ -182,7 +182,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         }
         long activeTime = stack.getOrCreateTag().getLong(TAG_ACTIVE);
 
-        if (entityIn.world.getGameTime() > activeTime) {
+        if (entityIn.level.getGameTime() > activeTime) {
             stack.getOrCreateTag().remove(TAG_ACTIVE);
         }
     }
@@ -191,7 +191,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     @Override
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -262,12 +262,12 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         if (getNumModes(stack) <= 1) {
             return;
         }
-        player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
             ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
