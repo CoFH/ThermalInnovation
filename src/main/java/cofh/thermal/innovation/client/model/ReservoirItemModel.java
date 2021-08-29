@@ -67,7 +67,6 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
     public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<RenderMaterial, TextureAtlasSprite> spriteGetter, IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
 
         RenderMaterial particleLocation = owner.isTexturePresent("particle") ? owner.resolveTexture("particle") : null;
-        RenderMaterial baseLocation = owner.isTexturePresent("base") ? owner.resolveTexture("base") : null;
         RenderMaterial fluidMaskLocation = owner.isTexturePresent("fluid_mask") ? owner.resolveTexture("fluid_mask") : null;
 
         RenderMaterial[] inactiveLocations = new RenderMaterial[2];
@@ -88,12 +87,8 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         if (particleSprite == null) particleSprite = fluidSprite;
 
         TransformationMatrix transform = modelTransform.getRotation();
-        ItemMultiLayerBakedModel.Builder builder = ItemMultiLayerBakedModel.builder(owner, particleSprite, new ContainedFluidOverrideHandler(overrides, bakery, owner, this), transformMap);
+        ItemMultiLayerBakedModel.Builder builder = ItemMultiLayerBakedModel.builder(owner, particleSprite, new ContainedFluidOverrideHandler(bakery, owner, this), transformMap);
 
-        if (baseLocation != null) {
-            // build base (insidest)
-            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprites(ImmutableList.of(baseLocation), transform, spriteGetter));
-        }
         RenderMaterial layerLocation = active ? activeLocations[mode % 2] : inactiveLocations[mode % 2];
         if (layerLocation != null) {
             builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprites(ImmutableList.of(layerLocation), transform, spriteGetter));
@@ -119,9 +114,6 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
 
         if (owner.isTexturePresent("particle")) {
             texs.add(owner.resolveTexture("particle"));
-        }
-        if (owner.isTexturePresent("base")) {
-            texs.add(owner.resolveTexture("base"));
         }
         if (owner.isTexturePresent("fluid_mask")) {
             texs.add(owner.resolveTexture("fluid_mask"));
@@ -179,14 +171,12 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
     private static final class ContainedFluidOverrideHandler extends ItemOverrideList {
 
         private final Map<List<Integer>, IBakedModel> cache = new Object2ObjectOpenHashMap<>(); // contains all the baked models since they'll never change
-        private final ItemOverrideList nested;
         private final ModelBakery bakery;
         private final IModelConfiguration owner;
         private final ReservoirItemModel parent;
 
-        private ContainedFluidOverrideHandler(ItemOverrideList nested, ModelBakery bakery, IModelConfiguration owner, ReservoirItemModel parent) {
+        private ContainedFluidOverrideHandler(ModelBakery bakery, IModelConfiguration owner, ReservoirItemModel parent) {
 
-            this.nested = nested;
             this.bakery = bakery;
             this.owner = owner;
             this.parent = parent;
@@ -195,24 +185,18 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         @Override
         public IBakedModel resolve(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
 
-            IBakedModel overrideModel = nested.resolve(originalModel, stack, world, entity);
-            IBakedModel hashModel = overrideModel == null ? originalModel : overrideModel;
-
             int mode = ((IMultiModeItem) stack.getItem()).getMode(stack);
             boolean active = ((ICoFHItem) stack.getItem()).isActive(stack);
 
-            return FluidHelper.getFluidContainedInItem(stack)
-                    .map(fluidStack -> {
-                        List<Integer> fluidHash = Arrays.asList(hashModel.hashCode(), FluidHelper.fluidHashcode(fluidStack));
-                        if (!cache.containsKey(fluidHash)) {
-                            ReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active);
-                            IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation(ID_COFH_CORE, "reservoir_override"));
-                            cache.put(fluidHash, bakedModel);
-                            return bakedModel;
-                        }
-                        return cache.get(fluidHash);
-                    })
-                    .orElse(originalModel); // empty
+            FluidStack fluidStack = FluidHelper.getFluidContainedInItem(stack).orElse(FluidStack.EMPTY);
+            List<Integer> fluidHash = Arrays.asList(mode + (active ? 2 : 0), FluidHelper.fluidHashcode(fluidStack));
+            if (!cache.containsKey(fluidHash)) {
+                ReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active);
+                IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation(ID_COFH_CORE, "reservoir_override"));
+                cache.put(fluidHash, bakedModel);
+                return bakedModel;
+            }
+            return cache.get(fluidHash);
         }
 
     }
