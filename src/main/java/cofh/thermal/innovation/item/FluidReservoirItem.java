@@ -2,7 +2,6 @@ package cofh.thermal.innovation.item;
 
 import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.FluidContainerItemAugmentable;
-import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
