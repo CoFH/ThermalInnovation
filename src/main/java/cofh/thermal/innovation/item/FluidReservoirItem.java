@@ -157,7 +157,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             return false;
         }
         World world = player.getCommandSenderWorld();
-        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
+        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.NONE);
 
         if (traceResult.getType() == RayTraceResult.Type.MISS) {
             return false;

@@ -42,8 +42,8 @@ import static cofh.lib.util.constants.Constants.ID_COFH_CORE;
 public final class ReservoirItemModel implements IModelGeometry<ReservoirItemModel> {
 
     // minimal Z offset to prevent depth-fighting
-    private static final float NORTH_Z_FLUID = 7.498f / 16f;
-    private static final float SOUTH_Z_FLUID = 8.502f / 16f;
+    private static final float NORTH_Z_FLUID = 7.498F / 16F;
+    private static final float SOUTH_Z_FLUID = 8.502F / 16F;
 
     @Nonnull
     private final FluidStack fluidStack;
