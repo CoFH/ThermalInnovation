@@ -53,7 +53,6 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     protected static final int RADIUS = 4;
     protected static final int REACH = 64;
 
-    protected static final int TIME_CONSTANT = 8;
     protected static final int PICKUP_DELAY = 32;
 
     protected static final int ENERGY_PER_ITEM = 25;
@@ -100,7 +99,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if (worldIn.getGameTime() % TIME_CONSTANT != 0) {
+        if (!Utils.timeCheckQuarter(worldIn)) {
             return;
         }
         if (Utils.isClientWorld(worldIn) || Utils.isFakePlayer(entityIn) || getMode(stack) <= 0) {
