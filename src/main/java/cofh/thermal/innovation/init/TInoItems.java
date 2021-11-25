@@ -20,6 +20,12 @@ public class TInoItems {
         registerArmor();
     }
 
+    public static void setup() {
+
+        RFDrillItem.setupEnchants();
+        RFSawItem.setupEnchants();
+    }
+
     // region HELPERS
     private static void registerTools() {
 

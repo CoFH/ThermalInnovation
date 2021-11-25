@@ -73,6 +73,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
         MATERIALS.add(Material.PLANT);
         MATERIALS.add(Material.REPLACEABLE_PLANT);
         MATERIALS.add(Material.BAMBOO);
+    }
+
+    public static void setupEnchants() {
 
         VALID_ENCHANTS.add(Enchantments.BLOCK_EFFICIENCY);
         VALID_ENCHANTS.add(Enchantments.SILK_TOUCH);

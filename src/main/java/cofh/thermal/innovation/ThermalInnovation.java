@@ -48,6 +48,7 @@ public class ThermalInnovation {
     // region INITIALIZATION
     private void commonSetup(final FMLCommonSetupEvent event) {
 
+        event.enqueueWork(TInoItems::setup);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

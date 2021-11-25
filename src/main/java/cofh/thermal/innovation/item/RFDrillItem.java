@@ -72,6 +72,9 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         MATERIALS.add(Material.HEAVY_METAL);
         MATERIALS.add(Material.METAL);
         MATERIALS.add(Material.STONE);
+    }
+
+    public static void setupEnchants() {
 
         VALID_ENCHANTS.add(Enchantments.BLOCK_EFFICIENCY);
         VALID_ENCHANTS.add(Enchantments.SILK_TOUCH);
