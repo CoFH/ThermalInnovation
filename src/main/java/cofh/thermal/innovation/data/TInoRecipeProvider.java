@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 
 import static cofh.lib.util.constants.Constants.ID_THERMAL;
 import static cofh.thermal.core.ThermalCore.ITEMS;
+import static cofh.thermal.innovation.init.TInoIDs.*;
 
 public class TInoRecipeProvider extends RecipeProviderCoFH {
 
@@ -38,7 +39,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
         Item redstoneServo = reg.get("redstone_servo");
         Item rfCoil = reg.get("rf_coil");
 
-        ShapedRecipeBuilder.shaped(reg.get("flux_drill"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_DRILL))
                 .define('C', ItemTagsCoFH.GEARS_GOLD)
                 .define('G', ItemTagsCoFH.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
@@ -50,7 +51,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_rf_coil", has(rfCoil))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("flux_saw"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_SAW))
                 .define('C', ItemTagsCoFH.GEARS_GOLD)
                 .define('G', ItemTagsCoFH.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
@@ -62,7 +63,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_rf_coil", has(rfCoil))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("flux_capacitor"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_CAPACITOR))
                 .define('L', ItemTagsCoFH.INGOTS_LEAD)
                 .define('P', rfCoil)
                 .define('R', Tags.Items.DUSTS_REDSTONE)
@@ -72,7 +73,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_rf_coil", has(rfCoil))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("flux_magnet"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_MAGNET))
                 .define('L', ItemTagsCoFH.INGOTS_LEAD)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
@@ -83,7 +84,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_rf_coil", has(rfCoil))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("fluid_reservoir"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_FLUID_RESERVOIR))
                 .define('B', Items.BUCKET)
                 .define('C', ItemTagsCoFH.INGOTS_COPPER)
                 .define('G', Tags.Items.GLASS)
@@ -95,7 +96,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_redstone_servo", has(redstoneServo))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("potion_infuser"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_POTION_INFUSER))
                 .define('B', Items.GLASS_BOTTLE)
                 .define('C', ItemTagsCoFH.INGOTS_COPPER)
                 .define('G', ItemTagsCoFH.GEARS_SILVER)
@@ -106,7 +107,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_glass_bottle", has(Items.GLASS_BOTTLE))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get("potion_quiver"))
+        ShapedRecipeBuilder.shaped(reg.get(ID_POTION_QUIVER))
                 .define('B', Items.GLASS_BOTTLE)
                 .define('C', ItemTagsCoFH.INGOTS_COPPER)
                 .define('G', ItemTagsCoFH.GEARS_SILVER)
