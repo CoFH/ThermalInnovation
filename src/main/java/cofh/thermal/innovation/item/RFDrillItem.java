@@ -203,19 +203,24 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         super.setAttributesFromAugment(container, augmentData);
     }
 
+    protected boolean hasEnergy(ItemStack stack) {
+
+        return getEnergyStored(stack) >= getEnergyPerUse(stack);
+    }
+
     protected float getAttackDamage(ItemStack stack) {
 
-        return 2.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 2.0F + getBaseMod(stack) : -4.0F;
     }
 
     protected float getAttackSpeed(ItemStack stack) {
 
-        return -2.4F + getBaseMod(stack) / 10;
+        return hasEnergy(stack) ? -2.4F + getBaseMod(stack) / 10 : -4.0F;
     }
 
     protected float getEfficiency(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 5.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 5.0F + getBaseMod(stack) : 1.0F;
     }
 
     protected int getEnergyPerUse(ItemStack stack) {
@@ -225,7 +230,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
     protected int getHarvestLevel(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? -1 : Math.max(2, (int) getBaseMod(stack));
+        return hasEnergy(stack) ? Math.max(2, (int) getBaseMod(stack)) : -1;
     }
 
     protected int getRadius(ItemStack stack) {

@@ -180,17 +180,21 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     @Override
     public ActionResultType useOn(ItemUseContext context) {
 
+        ItemStack held = context.getItemInHand();
         World world = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState blockstate = world.getBlockState(pos);
         Block block = AxeItem.STRIPABLES.get(blockstate.getBlock());
         if (block != null) {
             PlayerEntity player = context.getPlayer();
+            if (!hasEnergy(held) && player != null && !player.abilities.instabuild) {
+                return ActionResultType.PASS;
+            }
             world.playSound(player, pos, SoundEvents.AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
             if (Utils.isServerWorld(world)) {
                 world.setBlock(pos, block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, blockstate.getValue(RotatedPillarBlock.AXIS)), 11);
                 if (player != null && !player.abilities.instabuild) {
-                    extractEnergy(context.getItemInHand(), getEnergyPerUse(context.getItemInHand()), false);
+                    extractEnergy(held, getEnergyPerUse(context.getItemInHand()), false);
                 }
             }
             return ActionResultType.SUCCESS;
@@ -224,19 +228,24 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
         super.setAttributesFromAugment(container, augmentData);
     }
 
+    protected boolean hasEnergy(ItemStack stack) {
+
+        return getEnergyStored(stack) >= getEnergyPerUse(stack);
+    }
+
     protected float getAttackDamage(ItemStack stack) {
 
-        return 3.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 3.0F + getBaseMod(stack) : 0.0F;
     }
 
     protected float getAttackSpeed(ItemStack stack) {
 
-        return -2.1F + getBaseMod(stack) / 10;
+        return hasEnergy(stack) ? -2.1F + getBaseMod(stack) / 10 : -4.0F;
     }
 
     protected float getEfficiency(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 5.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 5.0F + getBaseMod(stack) : 1.0F;
     }
 
     protected int getEnergyPerUse(ItemStack stack) {
@@ -246,7 +255,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
     protected int getHarvestLevel(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? -1 : Math.max(2, (int) getBaseMod(stack));
+        return hasEnergy(stack) ? Math.max(2, (int) getBaseMod(stack)) : -1;
     }
 
     protected int getRadius(ItemStack stack) {
