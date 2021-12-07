@@ -47,7 +47,7 @@ import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
 public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem {
 
-    protected static final int MAP_CAPACITY = 64;
+    protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);
 
     protected static final int RADIUS = 4;
