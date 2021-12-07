@@ -116,11 +116,11 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
-    @Override
-    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
-
-        return useDelegate(stack, context.getPlayer(), context.getHand()) ? ActionResultType.SUCCESS : ActionResultType.PASS;
-    }
+    //    @Override
+    //    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
+    //
+    //        return useDelegate(stack, context.getPlayer(), context.getHand()) ? ActionResultType.SUCCESS : ActionResultType.PASS;
+    //    }
 
     // region HELPERS
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {

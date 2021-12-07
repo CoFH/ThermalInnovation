@@ -10,7 +10,6 @@ import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -70,11 +69,11 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
-    @Override
-    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
-
-        return useDelegate(stack, context.getPlayer(), context.getHand()) ? ActionResultType.SUCCESS : ActionResultType.PASS;
-    }
+    //    @Override
+    //    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
+    //
+    //        return useDelegate(stack, context.getPlayer(), context.getHand()) ? ActionResultType.SUCCESS : ActionResultType.PASS;
+    //    }
 
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
@@ -141,9 +140,11 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (world.mayInteract(player, pos)) {
             if (player.mayUseItemAt(pos, sideHit, stack)) {
                 FluidActionResult result = FluidUtil.tryPickUpFluid(stack, player, world, pos, sideHit);
-                if (result.isSuccess() && !player.abilities.instabuild) {
-                    player.setItemInHand(hand, result.getResult());
-                    player.awardStat(Stats.ITEM_USED.get(this));
+                if (result.isSuccess()) {
+                    if (!player.abilities.instabuild) {
+                        player.setItemInHand(hand, result.getResult());
+                        player.awardStat(Stats.ITEM_USED.get(this));
+                    }
                     return true;
                 }
             }
@@ -171,9 +172,11 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             BlockPos targetPos = pos.relative(sideHit);
             if (player.mayUseItemAt(targetPos, sideHit.getOpposite(), stack)) {
                 FluidActionResult result = FluidUtil.tryPlaceFluid(player, world, hand, targetPos, stack, new FluidStack(getFluid(stack), BUCKET_VOLUME));
-                if (result.isSuccess() && !player.abilities.instabuild) {
-                    player.setItemInHand(hand, result.getResult());
-                    player.awardStat(Stats.ITEM_USED.get(this));
+                if (result.isSuccess()) {
+                    if (!player.abilities.instabuild) {
+                        player.setItemInHand(hand, result.getResult());
+                        player.awardStat(Stats.ITEM_USED.get(this));
+                    }
                     return true;
                 }
             }
