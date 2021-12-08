@@ -1,8 +1,8 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "thermal:item/tools/flux_magnet",
-    "layer1": "thermal:item/tools/flux_magnet_empty"
+    "layer0": "thermal:item/flux_magnet",
+    "layer1": "thermal:item/flux_magnet_empty"
   },
   "display": {
     "thirdperson_righthand": {
@@ -33,15 +33,35 @@
   "overrides": [
     {
       "predicate": {
-        "charged": 1
+        "state": 0.5
       },
       "model": "thermal:item/flux_magnet_charged"
     },
     {
       "predicate": {
-        "active": 1
+        "state": 0.75
       },
       "model": "thermal:item/flux_magnet_active"
+    },
+    {
+      "predicate": {
+        "color": 1
+      },
+      "model": "thermal:item/flux_magnet_color"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.5
+      },
+      "model": "thermal:item/flux_magnet_color_charged"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.75
+      },
+      "model": "thermal:item/flux_magnet_color_active"
     }
   ]
 }

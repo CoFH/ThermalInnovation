@@ -1,7 +1,7 @@
 {
   "parent": "thermal:item/flux_pump",
   "textures": {
-    "layer1": "thermal:item/tools/flux_pump_active_1"
+    "layer1": "thermal:item/flux_pump_active_1"
   },
   "display": {
     "thirdperson_righthand": {

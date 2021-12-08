@@ -1,10 +1,10 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.RayTracer;
 import cofh.lib.util.Utils;
@@ -12,11 +12,14 @@ import cofh.lib.util.filter.IFilter;
 import cofh.lib.util.filter.IFilterableItem;
 import cofh.lib.util.helpers.FilterHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -43,7 +46,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFilterableItem, IMultiModeItem {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);
@@ -51,7 +54,6 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
     protected static final int RADIUS = 4;
     protected static final int REACH = 64;
 
-    protected static final int TIME_CONSTANT = 8;
     protected static final int PICKUP_DELAY = 32;
 
     protected static final int ENERGY_PER_ITEM = 25;
@@ -61,8 +63,9 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("charged"), (stack, world, entity) -> getEnergyStored(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getEnergyStored(stack) > 0 && getMode(stack) > 0 ? 1F : 0F);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
@@ -71,21 +74,21 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
     @Override
     protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 
-        tooltip.add(getTextComponent("info.thermal.magnet.use").mergeStyle(TextFormatting.GRAY));
+        tooltip.add(getTextComponent("info.thermal.magnet.use").withStyle(TextFormatting.GRAY));
         if (FilterHelper.hasFilter(stack)) {
-            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").mergeStyle(TextFormatting.DARK_GRAY));
+            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").withStyle(TextFormatting.DARK_GRAY));
         }
-        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).mergeStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.resultSuccess(stack) : ActionResult.resultPass(stack);
+        ItemStack stack = playerIn.getItemInHand(handIn);
+        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
     }
 
     @Override
@@ -97,7 +100,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if (worldIn.getGameTime() % TIME_CONSTANT != 0) {
+        if (!Utils.timeCheckQuarter(worldIn)) {
             return;
         }
         if (Utils.isClientWorld(worldIn) || Utils.isFakePlayer(entityIn) || getMode(stack) <= 0) {
@@ -105,40 +108,40 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
         }
         PlayerEntity player = (PlayerEntity) entityIn;
 
-        if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.isCreativeMode) {
+        if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.instabuild) {
             return;
         }
         int radius = getRadius(stack);
         int radSq = radius * radius;
 
-        AxisAlignedBB area = new AxisAlignedBB(player.getPosition().add(-radius, -radius, -radius), player.getPosition().add(1 + radius, 1 + radius, 1 + radius));
-        List<ItemEntity> items = worldIn.getEntitiesWithinAABB(ItemEntity.class, area, EntityPredicates.IS_ALIVE);
+        AxisAlignedBB area = new AxisAlignedBB(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
+        List<ItemEntity> items = worldIn.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
 
         if (Utils.isClientWorld(worldIn)) {
             for (ItemEntity item : items) {
-                if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
+                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
                     continue;
                 }
-                if (item.getPositionVec().squareDistanceTo(player.getPositionVec()) <= radSq) {
-                    worldIn.addParticle(RedstoneParticleData.REDSTONE_DUST, item.getPosX(), item.getPosY(), item.getPosZ(), 0, 0, 0);
+                if (item.position().distanceToSqr(player.position()) <= radSq) {
+                    worldIn.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                 }
             }
         } else {
             Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
             int itemCount = 0;
             for (ItemEntity item : items) {
-                if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                     continue;
                 }
-                if (item.getThrowerId() == null || !item.getThrowerId().equals(player.getUniqueID()) || item.age >= PICKUP_DELAY) {
-                    if (item.getPositionVec().squareDistanceTo(player.getPositionVec()) <= radSq) {
-                        item.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
-                        item.setPickupDelay(0);
+                if (item.getThrower() == null || !item.getThrower().equals(player.getUUID()) || item.age >= PICKUP_DELAY) {
+                    if (item.position().distanceToSqr(player.position()) <= radSq) {
+                        item.setPos(player.getX(), player.getY(), player.getZ());
+                        item.setPickUpDelay(0);
                         ++itemCount;
                     }
                 }
             }
-            if (!player.abilities.isCreativeMode) {
+            if (!player.abilities.instabuild) {
                 extractEnergy(stack, ENERGY_PER_ITEM * itemCount, false);
             }
         }
@@ -156,7 +159,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
                 return true;
             }
             return false;
-        } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.isCreativeMode) {
+        } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.instabuild) {
             BlockRayTraceResult traceResult = RayTracer.retrace(player, REACH);
             if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
                 return false;
@@ -164,38 +167,38 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
             int radius = getRadius(stack);
             int radSq = radius * radius;
 
-            World world = player.getEntityWorld();
-            BlockPos pos = traceResult.getPos();
+            World world = player.getCommandSenderWorld();
+            BlockPos pos = traceResult.getBlockPos();
 
-            AxisAlignedBB area = new AxisAlignedBB(pos.add(-radius, -radius, -radius), pos.add(1 + radius, 1 + radius, 1 + radius));
-            List<ItemEntity> items = world.getEntitiesWithinAABB(ItemEntity.class, area, EntityPredicates.IS_ALIVE);
+            AxisAlignedBB area = new AxisAlignedBB(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
+            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
 
             if (Utils.isClientWorld(world)) {
                 for (ItemEntity item : items) {
-                    if (item.getPositionVec().squareDistanceTo(traceResult.getHitVec()) <= radSq) {
-                        world.addParticle(RedstoneParticleData.REDSTONE_DUST, item.getPosX(), item.getPosY(), item.getPosZ(), 0, 0, 0);
+                    if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
+                        world.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                     }
                 }
             } else {
                 Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
                 int itemCount = 0;
                 for (ItemEntity item : items) {
-                    if (item.cannotPickup() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                    if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                         continue;
                     }
-                    if (item.getPositionVec().squareDistanceTo(traceResult.getHitVec()) <= radSq) {
-                        item.setPosition(player.getPosX(), player.getPosY(), player.getPosZ());
-                        item.setPickupDelay(0);
+                    if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
+                        item.setPos(player.getX(), player.getY(), player.getZ());
+                        item.setPickUpDelay(0);
                         ++itemCount;
                     }
                 }
-                if (!player.abilities.isCreativeMode && itemCount > 0) {
+                if (!player.abilities.instabuild && itemCount > 0) {
                     extractEnergy(stack, ENERGY_PER_USE + ENERGY_PER_ITEM * itemCount, false);
                 }
             }
-            player.swingArm(hand);
-            stack.setAnimationsToGo(5);
-            player.world.playSound(null, player.getPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 1.0F);
+            player.swing(hand);
+            stack.setPopTime(5);
+            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 1.0F);
         }
         return true;
     }
@@ -210,7 +213,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
     @Override
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -265,7 +268,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements IFil
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion

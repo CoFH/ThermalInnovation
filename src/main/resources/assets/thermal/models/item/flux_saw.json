@@ -1,8 +1,9 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "thermal:item/tools/flux_saw",
-    "layer1": "thermal:item/tools/flux_saw_empty"
+    "layer0": "thermal:item/flux_saw",
+    "layer1": "thermal:item/flux_saw_outline",
+    "layer2": "thermal:item/flux_saw_empty"
   },
   "display": {
     "thirdperson_righthand": {
@@ -29,15 +30,35 @@
   "overrides": [
     {
       "predicate": {
-        "charged": 1
+        "state": 0.5
       },
       "model": "thermal:item/flux_saw_charged"
     },
     {
       "predicate": {
-        "active": 1
+        "state": 0.75
       },
       "model": "thermal:item/flux_saw_active"
+    },
+    {
+      "predicate": {
+        "color": 1
+      },
+      "model": "thermal:item/flux_saw_color"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.5
+      },
+      "model": "thermal:item/flux_saw_color_charged"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.75
+      },
+      "model": "thermal:item/flux_saw_color_active"
     }
   ]
 }

@@ -1,0 +1,6 @@
+{
+  "parent": "thermal:item/flux_saw",
+  "textures": {
+    "layer0": "thermal:item/flux_saw_color"
+  }
+}

@@ -9,9 +9,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
-import static cofh.thermal.core.init.TCoreIDs.ID_CHARGE_BENCH;
-import static cofh.thermal.core.init.TCoreIDs.ID_DEVICE_POTION_DIFFUSER;
 import static cofh.thermal.lib.common.ThermalFlags.*;
+import static cofh.thermal.lib.common.ThermalIDs.ID_CHARGE_BENCH;
+import static cofh.thermal.lib.common.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
 
 @Mod(ID_THERMAL_INNOVATION)
 public class ThermalInnovation {
@@ -48,6 +48,7 @@ public class ThermalInnovation {
     // region INITIALIZATION
     private void commonSetup(final FMLCommonSetupEvent event) {
 
+        event.enqueueWork(TInoItems::setup);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

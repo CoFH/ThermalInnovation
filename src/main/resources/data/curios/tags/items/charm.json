@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "thermal:flux_capacitor",
+    "thermal:flux_magnet",
+    "thermal:fluid_reservoir",
+    "thermal:potion_infuser"
+  ]
+}

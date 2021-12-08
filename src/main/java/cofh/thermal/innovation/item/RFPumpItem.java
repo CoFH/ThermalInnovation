@@ -1,6 +1,5 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.capability.CapabilityAreaEffect;
@@ -10,6 +9,8 @@ import cofh.lib.energy.IEnergyContainerItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -35,7 +36,7 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
+public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem {
 
     public static final int ENERGY_PER_USE = 200;
 
@@ -55,9 +56,9 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslationTextComponent("info.cofh.single_block").mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.single_block").withStyle(TextFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius).mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
@@ -66,10 +67,10 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
     }
 
     @Override
-    public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
 
         // TODO: CHANGE
-        return super.onItemRightClick(worldIn, playerIn, handIn);
+        return super.use(worldIn, playerIn, handIn);
     }
 
     @Override
@@ -80,7 +81,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
         }
         long activeTime = stack.getOrCreateTag().getLong(TAG_ACTIVE);
 
-        if (entityIn.world.getGameTime() > activeTime) {
+        if (entityIn.level.getGameTime() > activeTime) {
             stack.getOrCreateTag().remove(TAG_ACTIVE);
         }
     }
@@ -89,7 +90,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
     @Override
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -137,12 +138,12 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
     @Override
     public void onModeChange(PlayerEntity player, ItemStack stack) {
 
-        player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
             ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
@@ -154,7 +155,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
 
         RFPumpItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 
-            super(containerIn, itemIn);
+            super(containerIn, itemIn, itemIn.getEnergyCapability());
         }
 
         @Override

@@ -1,8 +1,8 @@
 {
   "parent": "thermal:item/flux_drill",
   "textures": {
-    "layer1": "thermal:item/tools/flux_drill_active_1",
-    "layer2": "thermal:item/tools/flux_drill_active_2"
+    "layer2": "thermal:item/flux_drill_active_1",
+    "layer3": "thermal:item/flux_drill_active_2"
   },
   "display": {
     "thirdperson_righthand": {

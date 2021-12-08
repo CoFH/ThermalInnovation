@@ -1,17 +1,19 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.capability.CapabilityAreaEffect;
 import cofh.lib.capability.IAreaEffect;
 import cofh.lib.energy.EnergyContainerItemWrapper;
 import cofh.lib.energy.IEnergyContainerItem;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.constants.ToolTypes;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
@@ -31,6 +33,7 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.AxeItem;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
@@ -55,7 +58,7 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
+public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final Set<ToolType> TOOL_TYPES = new ObjectOpenHashSet<>();
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
@@ -68,21 +71,25 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
         TOOL_TYPES.add(ToolType.AXE);
 
         MATERIALS.add(Material.WOOD);
-        MATERIALS.add(Material.PLANTS);
-        MATERIALS.add(Material.TALL_PLANTS);
+        MATERIALS.add(Material.PLANT);
+        MATERIALS.add(Material.REPLACEABLE_PLANT);
         MATERIALS.add(Material.BAMBOO);
+    }
 
-        VALID_ENCHANTS.add(Enchantments.EFFICIENCY);
+    public static void setupEnchants() {
+
+        VALID_ENCHANTS.add(Enchantments.BLOCK_EFFICIENCY);
         VALID_ENCHANTS.add(Enchantments.SILK_TOUCH);
-        VALID_ENCHANTS.add(Enchantments.FORTUNE);
+        VALID_ENCHANTS.add(Enchantments.BLOCK_FORTUNE);
     }
 
     public RFSawItem(Properties builder, int maxEnergy, int maxTransfer) {
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("charged"), (stack, world, entity) -> getEnergyStored(stack) > 0 ? 1F : 0F);
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity) -> getEnergyStored(stack) > 0 && hasActiveTag(stack) ? 1F : 0F);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);
@@ -93,9 +100,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslationTextComponent("info.cofh.single_block").mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.single_block").withStyle(TextFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius).mergeStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
@@ -138,26 +145,32 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
         Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
         if (slot == EquipmentSlotType.MAINHAND) {
-            multimap.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", getAttackDamage(stack), AttributeModifier.Operation.ADDITION));
-            multimap.put(Attributes.ATTACK_SPEED, new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", getAttackSpeed(stack), AttributeModifier.Operation.ADDITION));
+            float damage = getAttackDamage(stack);
+            float speed = getAttackSpeed(stack);
+            if (damage != 0.0F) {
+                multimap.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Tool modifier", damage, AttributeModifier.Operation.ADDITION));
+            }
+            if (speed != 0.0F) {
+                multimap.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Tool modifier", speed, AttributeModifier.Operation.ADDITION));
+            }
         }
         return multimap;
     }
 
     @Override
-    public boolean hitEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 
-        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.isCreativeMode) {
+        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.instabuild) {
             extractEnergy(stack, getEnergyPerUse(stack) * 2, false);
         }
         return true;
     }
 
     @Override
-    public boolean onBlockDestroyed(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
+    public boolean mineBlock(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
 
-        if (Utils.isServerWorld(worldIn) && state.getBlockHardness(worldIn, pos) != 0.0F) {
-            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.isCreativeMode) {
+        if (Utils.isServerWorld(worldIn) && state.getDestroySpeed(worldIn, pos) != 0.0F) {
+            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.instabuild) {
                 extractEnergy(stack, getEnergyPerUse(stack), false);
             }
         }
@@ -172,19 +185,23 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
     }
 
     @Override
-    public ActionResultType onItemUse(ItemUseContext context) {
+    public ActionResultType useOn(ItemUseContext context) {
 
-        World world = context.getWorld();
-        BlockPos pos = context.getPos();
+        ItemStack held = context.getItemInHand();
+        World world = context.getLevel();
+        BlockPos pos = context.getClickedPos();
         BlockState blockstate = world.getBlockState(pos);
-        Block block = AxeItem.BLOCK_STRIPPING_MAP.get(blockstate.getBlock());
+        Block block = AxeItem.STRIPABLES.get(blockstate.getBlock());
         if (block != null) {
             PlayerEntity player = context.getPlayer();
-            world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+            if (!hasEnergy(held) && player != null && !player.abilities.instabuild) {
+                return ActionResultType.PASS;
+            }
+            world.playSound(player, pos, SoundEvents.AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
             if (Utils.isServerWorld(world)) {
-                world.setBlockState(pos, block.getDefaultState().with(RotatedPillarBlock.AXIS, blockstate.get(RotatedPillarBlock.AXIS)), 11);
-                if (player != null && !player.abilities.isCreativeMode) {
-                    extractEnergy(context.getItem(), getEnergyPerUse(context.getItem()), false);
+                world.setBlock(pos, block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, blockstate.getValue(RotatedPillarBlock.AXIS)), 11);
+                if (player != null && !player.abilities.instabuild) {
+                    extractEnergy(held, getEnergyPerUse(context.getItemInHand()), false);
                 }
             }
             return ActionResultType.SUCCESS;
@@ -200,7 +217,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
         }
         long activeTime = stack.getOrCreateTag().getLong(TAG_ACTIVE);
 
-        if (entityIn.world.getGameTime() > activeTime) {
+        if (entityIn.level.getGameTime() > activeTime) {
             stack.getOrCreateTag().remove(TAG_ACTIVE);
         }
     }
@@ -209,7 +226,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
     @Override
     protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
 
-        CompoundNBT subTag = container.getChildTag(TAG_PROPERTIES);
+        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -218,19 +235,24 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
         super.setAttributesFromAugment(container, augmentData);
     }
 
+    protected boolean hasEnergy(ItemStack stack) {
+
+        return getEnergyStored(stack) >= getEnergyPerUse(stack);
+    }
+
     protected float getAttackDamage(ItemStack stack) {
 
-        return 3.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 3.0F + getBaseMod(stack) : 0.0F;
     }
 
     protected float getAttackSpeed(ItemStack stack) {
 
-        return -2.1F + getBaseMod(stack) / 10;
+        return hasEnergy(stack) ? -2.1F + getBaseMod(stack) / 10 : -4.0F;
     }
 
     protected float getEfficiency(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? 1.0F : 6.0F + getBaseMod(stack);
+        return hasEnergy(stack) ? 5.0F + getBaseMod(stack) : 1.0F;
     }
 
     protected int getEnergyPerUse(ItemStack stack) {
@@ -240,7 +262,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
     protected int getHarvestLevel(ItemStack stack) {
 
-        return getEnergyStored(stack) < getEnergyPerUse(stack) ? -1 : Math.max(2, (int) getBaseMod(stack));
+        return hasEnergy(stack) ? Math.max(2, (int) getBaseMod(stack)) : -1;
     }
 
     protected int getRadius(ItemStack stack) {
@@ -280,12 +302,12 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
         if (getNumModes(stack) <= 1) {
             return;
         }
-        player.world.playSound(null, player.getPosition(), SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
             ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").appendString(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
@@ -297,7 +319,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IMultiM
 
         RFSawItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 
-            super(containerIn, itemIn);
+            super(containerIn, itemIn, itemIn.getEnergyCapability());
         }
 
         @Override

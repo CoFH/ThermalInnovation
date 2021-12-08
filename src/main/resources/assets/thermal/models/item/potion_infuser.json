@@ -1,7 +1,8 @@
 {
   "parent": "item/handheld",
   "textures": {
-    "layer0": "thermal:item/tools/potion_infuser"
+    "layer0": "thermal:item/potion_infuser",
+    "layer1": "thermal:item/potion_infuser_outline"
   },
   "display": {
     "thirdperson_righthand": {
@@ -32,15 +33,35 @@
   "overrides": [
     {
       "predicate": {
-        "filled": 1
+        "state": 0.5
       },
       "model": "thermal:item/potion_infuser_filled"
     },
     {
       "predicate": {
-        "active": 1
+        "state": 0.75
       },
       "model": "thermal:item/potion_infuser_active"
+    },
+    {
+      "predicate": {
+        "color": 1
+      },
+      "model": "thermal:item/potion_infuser_color"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.5
+      },
+      "model": "thermal:item/potion_infuser_color_filled"
+    },
+    {
+      "predicate": {
+        "color": 1,
+        "state": 0.75
+      },
+      "model": "thermal:item/potion_infuser_color_active"
     }
   ]
 }
