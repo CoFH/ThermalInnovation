@@ -1,14 +1,15 @@
 package cofh.thermal.innovation.item;
 
 import cofh.core.compat.curios.CuriosProxy;
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.core.util.helpers.EnergyHelper;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
+import cofh.thermal.lib.util.ThermalEnergyHelper;
 import com.google.common.collect.Iterables;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -29,7 +30,7 @@ import java.util.List;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
 
-public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
+public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final int EQUIPMENT = 0;
     protected static final int INVENTORY = 1;
@@ -96,7 +97,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
             if (stack.isEmpty() || equip.equals(stack)) {
                 continue;
             }
-            equip.getCapability(EnergyHelper.getEnergySystem(), null)
+            equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
                     .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
         }
         if (getMode(stack) != INVENTORY) {
@@ -106,7 +107,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
                     if (stack.isEmpty() || equip.equals(stack)) {
                         continue;
                     }
-                    equip.getCapability(EnergyHelper.getEnergySystem(), null)
+                    equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
                             .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
                 }
             });

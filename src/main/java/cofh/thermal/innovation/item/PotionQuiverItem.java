@@ -1,6 +1,5 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.FluidContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
@@ -12,6 +11,7 @@ import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.FluidContainerItemAugmentable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.player.PlayerEntity;

@@ -1,6 +1,5 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.capability.CapabilityAreaEffect;
@@ -10,6 +9,8 @@ import cofh.lib.energy.IEnergyContainerItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -35,7 +36,7 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem {
+public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem {
 
     public static final int ENERGY_PER_USE = 200;
 
@@ -154,7 +155,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
 
         RFPumpItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 
-            super(containerIn, itemIn);
+            super(containerIn, itemIn, itemIn.getEnergyCapability());
         }
 
         @Override

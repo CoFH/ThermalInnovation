@@ -1,6 +1,5 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
@@ -13,6 +12,8 @@ import cofh.lib.util.filter.IFilter;
 import cofh.lib.util.filter.IFilterableItem;
 import cofh.lib.util.helpers.FilterHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ItemEntity;
@@ -45,7 +46,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);

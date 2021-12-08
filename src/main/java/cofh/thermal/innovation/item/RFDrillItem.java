@@ -1,6 +1,5 @@
 package cofh.thermal.innovation.item;
 
-import cofh.core.item.EnergyContainerItemAugmentable;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.capability.CapabilityAreaEffect;
@@ -13,6 +12,8 @@ import cofh.lib.util.Utils;
 import cofh.lib.util.constants.ToolTypes;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
@@ -56,7 +57,7 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
+public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final Set<ToolType> TOOL_TYPES = new ObjectOpenHashSet<>();
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
@@ -293,7 +294,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
         RFDrillItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 
-            super(containerIn, itemIn);
+            super(containerIn, itemIn, itemIn.getEnergyCapability());
         }
 
         @Override
