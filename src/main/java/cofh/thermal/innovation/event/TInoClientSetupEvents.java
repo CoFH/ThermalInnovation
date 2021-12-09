@@ -1,6 +1,6 @@
 package cofh.thermal.innovation.event;
 
-import cofh.thermal.innovation.client.model.ReservoirItemModel;
+import cofh.thermal.innovation.client.model.FluidReservoirItemModel;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -21,7 +21,7 @@ public class TInoClientSetupEvents {
     @SubscribeEvent
     public static void registerModels(final ModelRegistryEvent event) {
 
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(ID_THERMAL, "reservoir"), new ReservoirItemModel.Loader());
+        ModelLoaderRegistry.registerLoader(new ResourceLocation(ID_THERMAL, "reservoir"), new FluidReservoirItemModel.Loader());
     }
 
 }

@@ -3,8 +3,12 @@
   "parent": "forge:item/default",
   "textures": {
     "fluid_mask": "thermal:item/fluid_reservoir_mask",
-    "mode_0": "thermal:item/fluid_reservoir_0",
-    "mode_1": "thermal:item/fluid_reservoir_1",
+    "base_0": "thermal:item/fluid_reservoir_0",
+    "base_1": "thermal:item/fluid_reservoir_1",
+    "color_0": "thermal:item/fluid_reservoir_0_color",
+    "color_1": "thermal:item/fluid_reservoir_1_color",
+    "mode_0": "thermal:item/fluid_reservoir_0_mode",
+    "mode_1": "thermal:item/fluid_reservoir_1_mode",
     "active_0": "thermal:item/fluid_reservoir_0_active",
     "active_1": "thermal:item/fluid_reservoir_1_active"
   }

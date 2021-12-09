@@ -3,7 +3,6 @@ package cofh.thermal.innovation.client.model;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.item.ICoFHItem;
 import cofh.lib.item.IMultiModeItem;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
@@ -18,6 +17,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -39,7 +39,7 @@ import java.util.function.Predicate;
 import static cofh.lib.util.constants.Constants.BUCKET_VOLUME;
 import static cofh.lib.util.constants.Constants.ID_COFH_CORE;
 
-public final class ReservoirItemModel implements IModelGeometry<ReservoirItemModel> {
+public final class FluidReservoirItemModel implements IModelGeometry<FluidReservoirItemModel> {
 
     // minimal Z offset to prevent depth-fighting
     private static final float NORTH_Z_FLUID = 7.498F / 16F;
@@ -50,17 +50,19 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
 
     private final int mode;
     private final boolean active;
+    private final boolean color;
 
-    public ReservoirItemModel(FluidStack fluidStack, int mode, boolean active) {
+    public FluidReservoirItemModel(FluidStack fluidStack, int mode, boolean active, boolean color) {
 
         this.fluidStack = fluidStack;
         this.mode = mode;
         this.active = active;
+        this.color = color;
     }
 
-    public ReservoirItemModel withProperties(FluidStack newFluid, int mode, boolean active) {
+    public FluidReservoirItemModel withProperties(FluidStack newFluid, int mode, boolean active, boolean color) {
 
-        return new ReservoirItemModel(newFluid, mode, active);
+        return new FluidReservoirItemModel(newFluid, mode, active, color);
     }
 
     @Override
@@ -71,11 +73,18 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
 
         RenderMaterial[] inactiveLocations = new RenderMaterial[2];
         RenderMaterial[] activeLocations = new RenderMaterial[2];
+        RenderMaterial[] baseLocations = new RenderMaterial[2];
+        RenderMaterial[] colorLocations = new RenderMaterial[2];
 
         inactiveLocations[0] = owner.isTexturePresent("mode_0") ? owner.resolveTexture("mode_0") : null;
         inactiveLocations[1] = owner.isTexturePresent("mode_1") ? owner.resolveTexture("mode_1") : null;
         activeLocations[0] = owner.isTexturePresent("active_0") ? owner.resolveTexture("active_0") : null;
         activeLocations[1] = owner.isTexturePresent("active_1") ? owner.resolveTexture("active_1") : null;
+
+        baseLocations[0] = owner.isTexturePresent("base_0") ? owner.resolveTexture("base_0") : null;
+        baseLocations[1] = owner.isTexturePresent("base_1") ? owner.resolveTexture("base_1") : null;
+        colorLocations[0] = owner.isTexturePresent("color_0") ? owner.resolveTexture("color_0") : null;
+        colorLocations[1] = owner.isTexturePresent("color_1") ? owner.resolveTexture("color_1") : null;
 
         IModelTransform transformsFromModel = owner.getCombinedTransform();
         Fluid fluid = fluidStack.getFluid();
@@ -89,18 +98,23 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         TransformationMatrix transform = modelTransform.getRotation();
         ItemMultiLayerBakedModel.Builder builder = ItemMultiLayerBakedModel.builder(owner, particleSprite, new ContainedFluidOverrideHandler(bakery, owner, this), transformMap);
 
-        RenderMaterial layerLocation = active ? activeLocations[mode % 2] : inactiveLocations[mode % 2];
-        if (layerLocation != null) {
-            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprites(ImmutableList.of(layerLocation), transform, spriteGetter));
+        RenderMaterial modeLayer = active ? activeLocations[mode % 2] : inactiveLocations[mode % 2];
+        if (modeLayer != null) {
+            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprite(0, spriteGetter.apply(modeLayer), transform));
         }
+        RenderMaterial frameLayer = color ? colorLocations[mode % 2] : baseLocations[mode % 2];
+        if (frameLayer != null) {
+            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprite(1, spriteGetter.apply(frameLayer), transform));
+        }
+
         if (fluidMaskLocation != null && fluidSprite != null) {
             TextureAtlasSprite templateSprite = spriteGetter.apply(fluidMaskLocation);
             if (templateSprite != null) {
                 // build liquid layer (inside)
                 int luminosity = fluid.getAttributes().getLuminosity(fluidStack);
                 int color = fluid.getAttributes().getColor(fluidStack);
-                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, NORTH_Z_FLUID, Direction.NORTH, color, 1, luminosity));
-                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 1, luminosity));
+                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, NORTH_Z_FLUID, Direction.NORTH, color, 2, luminosity));
+                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 2, luminosity));
             }
         }
         builder.setParticle(particleSprite);
@@ -118,6 +132,18 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         if (owner.isTexturePresent("fluid_mask")) {
             texs.add(owner.resolveTexture("fluid_mask"));
         }
+        if (owner.isTexturePresent("base_0")) {
+            texs.add(owner.resolveTexture("base_0"));
+        }
+        if (owner.isTexturePresent("base_1")) {
+            texs.add(owner.resolveTexture("base_1"));
+        }
+        if (owner.isTexturePresent("color_0")) {
+            texs.add(owner.resolveTexture("color_0"));
+        }
+        if (owner.isTexturePresent("color_1")) {
+            texs.add(owner.resolveTexture("color_1"));
+        }
         if (owner.isTexturePresent("mode_0")) {
             texs.add(owner.resolveTexture("mode_0"));
         }
@@ -133,7 +159,7 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         return texs;
     }
 
-    public static class Loader implements IModelLoader<ReservoirItemModel> {
+    public static class Loader implements IModelLoader<FluidReservoirItemModel> {
 
         @Override
         public IResourceType getResourceType() {
@@ -152,7 +178,7 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         }
 
         @Override
-        public ReservoirItemModel read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
+        public FluidReservoirItemModel read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
 
             FluidStack stack = FluidStack.EMPTY;
             if (modelContents.has("fluid")) {
@@ -163,7 +189,7 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
                 }
             }
             // create new model with correct liquid
-            return new ReservoirItemModel(stack, 0, false);
+            return new FluidReservoirItemModel(stack, 0, false, false);
         }
 
     }
@@ -173,9 +199,9 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
         private final Map<List<Integer>, IBakedModel> cache = new Object2ObjectOpenHashMap<>(); // contains all the baked models since they'll never change
         private final ModelBakery bakery;
         private final IModelConfiguration owner;
-        private final ReservoirItemModel parent;
+        private final FluidReservoirItemModel parent;
 
-        private ContainedFluidOverrideHandler(ModelBakery bakery, IModelConfiguration owner, ReservoirItemModel parent) {
+        private ContainedFluidOverrideHandler(ModelBakery bakery, IModelConfiguration owner, FluidReservoirItemModel parent) {
 
             this.bakery = bakery;
             this.owner = owner;
@@ -188,10 +214,13 @@ public final class ReservoirItemModel implements IModelGeometry<ReservoirItemMod
             int mode = ((IMultiModeItem) stack.getItem()).getMode(stack);
             boolean active = ((ICoFHItem) stack.getItem()).isActive(stack);
 
+            CompoundNBT nbt = stack.getTagElement("display");
+            boolean color = nbt != null && nbt.contains("color", 99);
+
             FluidStack fluidStack = FluidHelper.getFluidContainedInItem(stack).orElse(FluidStack.EMPTY);
-            List<Integer> fluidHash = Arrays.asList(mode + (active ? 2 : 0), FluidHelper.fluidHashcode(fluidStack));
+            List<Integer> fluidHash = Arrays.asList(mode + (active ? 2 : 0) + (color ? 4 : 0), FluidHelper.fluidHashcode(fluidStack));
             if (!cache.containsKey(fluidHash)) {
-                ReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active);
+                FluidReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active, color);
                 IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation(ID_COFH_CORE, "reservoir_override"));
                 cache.put(fluidHash, bakedModel);
                 return bakedModel;

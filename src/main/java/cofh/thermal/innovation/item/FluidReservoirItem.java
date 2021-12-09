@@ -1,7 +1,9 @@
 package cofh.thermal.innovation.item;
 
 import cofh.core.compat.curios.CuriosProxy;
+import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
@@ -9,7 +11,9 @@ import cofh.thermal.lib.item.FluidContainerItemAugmentable;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.IDyeableArmorItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
@@ -36,7 +40,7 @@ import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_STORAGE_VALIDATO
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
-public class FluidReservoirItem extends FluidContainerItemAugmentable implements IMultiModeItem {
+public class FluidReservoirItem extends FluidContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
 
     protected static final int FILL = 0;
     protected static final int EMPTY = 1;
@@ -44,6 +48,8 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     public FluidReservoirItem(Properties builder, int fluidCapacity) {
 
         super(builder, fluidCapacity);
+
+        ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.storageAugments;
         augValidator = FLUID_STORAGE_VALIDATOR;
@@ -217,6 +223,18 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
 
         player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.reservoir.mode." + getMode(stack)));
+    }
+    // endregion
+
+    // region IColorableItem
+    @Override
+    public int getColor(ItemStack item, int colorIndex) {
+
+        if (colorIndex == 1) {
+            CompoundNBT nbt = item.getTagElement("display");
+            return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
+        }
+        return 0xFFFFFF;
     }
     // endregion
 }
