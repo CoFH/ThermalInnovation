@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.Mod;
 import static cofh.lib.util.constants.Constants.ID_THERMAL;
 import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = ID_THERMAL_INNOVATION, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber (value = Dist.CLIENT, modid = ID_THERMAL_INNOVATION, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TInoClientSetupEvents {
 
     private TInoClientSetupEvents() {

@@ -13,7 +13,7 @@ import static cofh.thermal.lib.common.ThermalFlags.*;
 import static cofh.thermal.lib.common.ThermalIDs.ID_CHARGE_BENCH;
 import static cofh.thermal.lib.common.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
 
-@Mod(ID_THERMAL_INNOVATION)
+@Mod (ID_THERMAL_INNOVATION)
 public class ThermalInnovation {
 
     public ThermalInnovation() {
