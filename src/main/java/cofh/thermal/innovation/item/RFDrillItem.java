@@ -222,7 +222,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
     protected float getAttackSpeed(ItemStack stack) {
 
-        return hasEnergy(stack) ? -2.4F + getBaseMod(stack) / 10 : -4.0F;
+        return hasEnergy(stack) ? -2.4F + getBaseMod(stack) / 10 : -3.0F;
     }
 
     protected float getEfficiency(ItemStack stack) {

@@ -247,7 +247,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
     protected float getAttackSpeed(ItemStack stack) {
 
-        return hasEnergy(stack) ? -2.1F + getBaseMod(stack) / 10 : -4.0F;
+        return hasEnergy(stack) ? -2.1F + getBaseMod(stack) / 10 : -3.0F;
     }
 
     protected float getEfficiency(ItemStack stack) {
