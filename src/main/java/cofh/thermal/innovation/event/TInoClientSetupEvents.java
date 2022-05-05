@@ -1,7 +1,7 @@
 package cofh.thermal.innovation.event;
 
 import cofh.thermal.innovation.client.model.FluidReservoirItemModel;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;

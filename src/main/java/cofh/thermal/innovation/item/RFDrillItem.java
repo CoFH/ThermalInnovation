@@ -9,7 +9,6 @@ import cofh.lib.energy.IEnergyContainerItem;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.lib.util.constants.ToolTypes;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
@@ -18,31 +17,30 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IDyeableArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -57,19 +55,16 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+// TODO: Lemming ToolActions
 
-    protected static final Set<ToolType> TOOL_TYPES = new ObjectOpenHashSet<>();
+public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
     public static final int ENERGY_PER_USE = 200;
 
     static {
-        TOOL_TYPES.add(ToolTypes.DRILL);
-        TOOL_TYPES.add(ToolType.PICKAXE);
-        TOOL_TYPES.add(ToolType.SHOVEL);
-
         MATERIALS.add(Material.HEAVY_METAL);
         MATERIALS.add(Material.METAL);
         MATERIALS.add(Material.STONE);
@@ -86,8 +81,8 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity, seed) -> (hasCustomColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
@@ -95,13 +90,13 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     }
 
     @Override
-    protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    protected void tooltipDelegate(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslationTextComponent("info.cofh.single_block").withStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslatableComponent("info.cofh.single_block").withStyle(ChatFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(ChatFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
@@ -116,35 +111,16 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     }
 
     @Override
-    public boolean canHarvestBlock(ItemStack stack, BlockState state) {
-
-        // Yes, Shovels can harvest Snow and Snow Blocks. That's an intentional omission here. :)
-        return TOOL_TYPES.contains(state.getHarvestTool()) ? getHarvestLevel(stack) >= state.getHarvestLevel() : MATERIALS.contains(state.getMaterial());
-    }
-
-    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) || getToolTypes(stack).stream().anyMatch(state::isToolEffective) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return MATERIALS.contains(state.getMaterial()) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override
-    public int getHarvestLevel(ItemStack stack, ToolType tool, @Nullable PlayerEntity player, @Nullable BlockState blockState) {
-
-        return getToolTypes(stack).contains(tool) ? getHarvestLevel(stack) : -1;
-    }
-
-    @Override
-    public Set<ToolType> getToolTypes(ItemStack stack) {
-
-        return TOOL_TYPES;
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
 
         Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
-        if (slot == EquipmentSlotType.MAINHAND) {
+        if (slot == EquipmentSlot.MAINHAND) {
             float damage = getAttackDamage(stack);
             float speed = getAttackSpeed(stack);
             if (damage != 0.0F) {
@@ -160,17 +136,17 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 
-        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.instabuild) {
+        if (attacker instanceof Player && !((Player) attacker).abilities.instabuild) {
             extractEnergy(stack, getEnergyPerUse(stack) * 2, false);
         }
         return true;
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
+    public boolean mineBlock(ItemStack stack, Level worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
 
         if (Utils.isServerWorld(worldIn) && state.getDestroySpeed(worldIn, pos) != 0.0F) {
-            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.instabuild) {
+            if (entityLiving instanceof Player && !((Player) entityLiving).abilities.instabuild) {
                 extractEnergy(stack, getEnergyPerUse(stack), false);
             }
         }
@@ -185,7 +161,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (!hasActiveTag(stack)) {
             return;
@@ -199,9 +175,9 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
     // region HELPERS
     @Override
-    protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
+    protected void setAttributesFromAugment(ItemStack container, CompoundTag augmentData) {
 
-        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
+        CompoundTag subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -247,7 +223,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     // endregion
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
 
         return new RFDrillItemWrapper(stack, this);
     }
@@ -272,17 +248,17 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     }
 
     @Override
-    public void onModeChange(PlayerEntity player, ItemStack stack) {
+    public void onModeChange(Player player, ItemStack stack) {
 
         if (getNumModes(stack) <= 1) {
             return;
         }
-        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.single_block"));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
@@ -298,7 +274,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         }
 
         @Override
-        public ImmutableList<BlockPos> getAreaEffectBlocks(BlockPos pos, PlayerEntity player) {
+        public ImmutableList<BlockPos> getAreaEffectBlocks(BlockPos pos, Player player) {
 
             return AreaEffectHelper.getBreakableBlocksRadius(container, pos, player, getMode(container));
         }

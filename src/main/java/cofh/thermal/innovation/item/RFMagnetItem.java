@@ -14,26 +14,31 @@ import cofh.lib.util.helpers.FilterHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.IDyeableArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.particles.RedstoneParticleData;
-import net.minecraft.util.*;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -46,7 +51,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);
@@ -63,8 +68,8 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity, seed) -> (hasCustomColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
@@ -72,33 +77,33 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     }
 
     @Override
-    protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    protected void tooltipDelegate(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 
-        tooltip.add(getTextComponent("info.thermal.magnet.use").withStyle(TextFormatting.GRAY));
+        tooltip.add(getTextComponent("info.thermal.magnet.use").withStyle(ChatFormatting.GRAY));
         if (FilterHelper.hasFilter(stack)) {
-            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").withStyle(TextFormatting.DARK_GRAY));
+            tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").withStyle(ChatFormatting.DARK_GRAY));
         }
-        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).withStyle(ChatFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
 
         ItemStack stack = playerIn.getItemInHand(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
+        return useDelegate(stack, playerIn, handIn) ? InteractionResultHolder.success(stack) : InteractionResultHolder.pass(stack);
     }
 
     @Override
-    public ActionResultType onItemUseFirst(ItemStack stack, ItemUseContext context) {
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
 
-        return useDelegate(stack, context.getPlayer(), context.getHand()) ? ActionResultType.SUCCESS : ActionResultType.PASS;
+        return useDelegate(stack, context.getPlayer(), context.getHand()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (!Utils.timeCheckQuarter(worldIn)) {
             return;
@@ -106,7 +111,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         if (Utils.isClientWorld(worldIn) || Utils.isFakePlayer(entityIn) || getMode(stack) <= 0) {
             return;
         }
-        PlayerEntity player = (PlayerEntity) entityIn;
+        Player player = (Player) entityIn;
 
         if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.instabuild) {
             return;
@@ -114,8 +119,8 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         int radius = getRadius(stack);
         int radSq = radius * radius;
 
-        AxisAlignedBB area = new AxisAlignedBB(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
-        List<ItemEntity> items = worldIn.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
+        AABB area = new AABB(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
+        List<ItemEntity> items = worldIn.getEntitiesOfClass(ItemEntity.class, area, EntitySelector.ENTITY_STILL_ALIVE);
 
         if (Utils.isClientWorld(worldIn)) {
             for (ItemEntity item : items) {
@@ -123,7 +128,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                     continue;
                 }
                 if (item.position().distanceToSqr(player.position()) <= radSq) {
-                    worldIn.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
+                    worldIn.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                 }
             }
         } else {
@@ -133,7 +138,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                 if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                     continue;
                 }
-                if (item.getThrower() == null || !item.getThrower().equals(player.getUUID()) || item.age >= PICKUP_DELAY) {
+                if (item.getThrower() == null || !item.getThrower().equals(player.getUUID()) || item.getAge() >= PICKUP_DELAY) {
                     if (item.position().distanceToSqr(player.position()) <= radSq) {
                         item.setPos(player.getX(), player.getY(), player.getZ());
                         item.setPickUpDelay(0);
@@ -148,35 +153,35 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     }
 
     // region HELPERS
-    protected boolean useDelegate(ItemStack stack, PlayerEntity player, Hand hand) {
+    protected boolean useDelegate(ItemStack stack, Player player, InteractionHand hand) {
 
         if (Utils.isFakePlayer(player)) {
             return false;
         }
-        if (player.isSecondaryUseActive() && hand == Hand.MAIN_HAND) {
-            if (player instanceof ServerPlayerEntity && FilterHelper.hasFilter(stack)) {
-                NetworkHooks.openGui((ServerPlayerEntity) player, getFilter(stack));
+        if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
+            if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack)) {
+                NetworkHooks.openGui((ServerPlayer) player, getFilter(stack));
                 return true;
             }
             return false;
         } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.instabuild) {
-            BlockRayTraceResult traceResult = RayTracer.retrace(player, REACH);
-            if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
+            BlockHitResult traceResult = RayTracer.retrace(player, REACH);
+            if (traceResult.getType() != HitResult.Type.BLOCK) {
                 return false;
             }
             int radius = getRadius(stack);
             int radSq = radius * radius;
 
-            World world = player.getCommandSenderWorld();
+            Level world = player.getCommandSenderWorld();
             BlockPos pos = traceResult.getBlockPos();
 
-            AxisAlignedBB area = new AxisAlignedBB(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
-            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area, EntityPredicates.ENTITY_STILL_ALIVE);
+            AABB area = new AABB(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
+            List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area, EntitySelector.ENTITY_STILL_ALIVE);
 
             if (Utils.isClientWorld(world)) {
                 for (ItemEntity item : items) {
                     if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
-                        world.addParticle(RedstoneParticleData.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
+                        world.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
                     }
                 }
             } else {
@@ -198,7 +203,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             }
             player.swing(hand);
             stack.setPopTime(5);
-            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 1.0F);
+            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 1.0F);
         }
         return true;
     }
@@ -211,9 +216,9 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     }
 
     @Override
-    protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
+    protected void setAttributesFromAugment(ItemStack container, CompoundTag augmentData) {
 
-        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
+        CompoundTag subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -266,10 +271,10 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
 
     // region IMultiModeItem
     @Override
-    public void onModeChange(PlayerEntity player, ItemStack stack) {
+    public void onModeChange(Player player, ItemStack stack) {
 
-        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundCategory.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.magnet.mode." + getMode(stack)));
+        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion
 }

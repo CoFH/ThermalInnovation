@@ -9,7 +9,6 @@ import cofh.lib.energy.IEnergyContainerItem;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.lib.util.constants.ToolTypes;
 import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
@@ -18,32 +17,35 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.RotatedPillarBlock;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.AxeItem;
-import net.minecraft.item.IDyeableArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -51,6 +53,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static cofh.lib.util.constants.NBTTags.*;
@@ -58,18 +61,16 @@ import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
-public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+// TODO Lemming ToolActions
 
-    protected static final Set<ToolType> TOOL_TYPES = new ObjectOpenHashSet<>();
+public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
     public static final int ENERGY_PER_USE = 200;
 
     static {
-        TOOL_TYPES.add(ToolTypes.SAW);
-        TOOL_TYPES.add(ToolType.AXE);
-
         MATERIALS.add(Material.WOOD);
         MATERIALS.add(Material.PLANT);
         MATERIALS.add(Material.REPLACEABLE_PLANT);
@@ -87,8 +88,8 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
         super(builder, maxEnergy, maxTransfer);
 
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity) -> (hasCustomColor(stack) ? 1.0F : 0));
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity, seed) -> (hasCustomColor(stack) ? 1.0F : 0));
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (isActive(stack) ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalConfig.toolAugments;
@@ -96,13 +97,13 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     }
 
     @Override
-    protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    protected void tooltipDelegate(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslationTextComponent("info.cofh.single_block").withStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslatableComponent("info.cofh.single_block").withStyle(ChatFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
+            tooltip.add(new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(ChatFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
@@ -117,34 +118,16 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     }
 
     @Override
-    public boolean canHarvestBlock(ItemStack stack, BlockState state) {
-
-        return TOOL_TYPES.contains(state.getHarvestTool()) ? getHarvestLevel(stack) >= state.getHarvestLevel() : MATERIALS.contains(state.getMaterial());
-    }
-
-    @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) || getToolTypes(stack).stream().anyMatch(state::isToolEffective) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return MATERIALS.contains(state.getMaterial()) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override
-    public int getHarvestLevel(ItemStack stack, ToolType tool, @Nullable PlayerEntity player, @Nullable BlockState blockState) {
-
-        return getToolTypes(stack).contains(tool) ? getHarvestLevel(stack) : -1;
-    }
-
-    @Override
-    public Set<ToolType> getToolTypes(ItemStack stack) {
-
-        return TOOL_TYPES;
-    }
-
-    @Override
-    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
 
         Multimap<Attribute, AttributeModifier> multimap = HashMultimap.create();
-        if (slot == EquipmentSlotType.MAINHAND) {
+        if (slot == EquipmentSlot.MAINHAND) {
             float damage = getAttackDamage(stack);
             float speed = getAttackSpeed(stack);
             if (damage != 0.0F) {
@@ -160,17 +143,17 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 
-        if (attacker instanceof PlayerEntity && !((PlayerEntity) attacker).abilities.instabuild) {
+        if (attacker instanceof Player && !((Player) attacker).abilities.instabuild) {
             extractEnergy(stack, getEnergyPerUse(stack) * 2, false);
         }
         return true;
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, World worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
+    public boolean mineBlock(ItemStack stack, Level worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
 
         if (Utils.isServerWorld(worldIn) && state.getDestroySpeed(worldIn, pos) != 0.0F) {
-            if (entityLiving instanceof PlayerEntity && !((PlayerEntity) entityLiving).abilities.instabuild) {
+            if (entityLiving instanceof Player && !((Player) entityLiving).abilities.instabuild) {
                 extractEnergy(stack, getEnergyPerUse(stack), false);
             }
         }
@@ -185,32 +168,48 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     }
 
     @Override
-    public ActionResultType useOn(ItemUseContext context) {
+    public InteractionResult useOn(UseOnContext context) {
 
+        Level level = context.getLevel();
+        BlockPos blockpos = context.getClickedPos();
+        Player player = context.getPlayer();
+        BlockState state = level.getBlockState(blockpos);
         ItemStack held = context.getItemInHand();
-        World world = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        BlockState blockstate = world.getBlockState(pos);
-        Block block = AxeItem.STRIPABLES.get(blockstate.getBlock());
-        if (block != null) {
-            PlayerEntity player = context.getPlayer();
-            if (!hasEnergy(held) && player != null && !player.abilities.instabuild) {
-                return ActionResultType.PASS;
-            }
-            world.playSound(player, pos, SoundEvents.AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            if (Utils.isServerWorld(world)) {
-                world.setBlock(pos, block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, blockstate.getValue(RotatedPillarBlock.AXIS)), 11);
-                if (player != null && !player.abilities.instabuild) {
-                    extractEnergy(held, getEnergyPerUse(context.getItemInHand()), false);
-                }
-            }
-            return ActionResultType.SUCCESS;
+
+        Optional<BlockState> optional = Optional.ofNullable(state.getToolModifiedState(context, ToolActions.AXE_STRIP, false));
+        Optional<BlockState> optional1 = optional.isPresent() ? Optional.empty() : Optional.ofNullable(state.getToolModifiedState(context, ToolActions.AXE_SCRAPE, false));
+        Optional<BlockState> optional2 = optional.isPresent() || optional1.isPresent() ? Optional.empty() : Optional.ofNullable(state.getToolModifiedState(context, ToolActions.AXE_WAX_OFF, false));
+        Optional<BlockState> optional3 = Optional.empty();
+
+        if (optional.isPresent()) {
+            level.playSound(player, blockpos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
+            optional3 = optional;
+        } else if (optional1.isPresent()) {
+            level.playSound(player, blockpos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.levelEvent(player, 3005, blockpos, 0);
+            optional3 = optional1;
+        } else if (optional2.isPresent()) {
+            level.playSound(player, blockpos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.levelEvent(player, 3004, blockpos, 0);
+            optional3 = optional2;
         }
-        return ActionResultType.PASS;
+
+        if (optional3.isPresent()) {
+            if (player instanceof ServerPlayer) {
+                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer) player, blockpos, held);
+            }
+            level.setBlock(blockpos, optional3.get(), 11);
+            if (player != null && !player.abilities.instabuild) {
+                extractEnergy(held, getEnergyPerUse(context.getItemInHand()), false);
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide);
+        } else {
+            return InteractionResult.PASS;
+        }
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (!hasActiveTag(stack)) {
             return;
@@ -224,9 +223,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
     // region HELPERS
     @Override
-    protected void setAttributesFromAugment(ItemStack container, CompoundNBT augmentData) {
+    protected void setAttributesFromAugment(ItemStack container, CompoundTag augmentData) {
 
-        CompoundNBT subTag = container.getTagElement(TAG_PROPERTIES);
+        CompoundTag subTag = container.getTagElement(TAG_PROPERTIES);
         if (subTag == null) {
             return;
         }
@@ -272,7 +271,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     // endregion
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
 
         return new RFSawItemWrapper(stack, this);
     }
@@ -297,17 +296,17 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     }
 
     @Override
-    public void onModeChange(PlayerEntity player, ItemStack stack) {
+    public void onModeChange(Player player, ItemStack stack) {
 
         if (getNumModes(stack) <= 1) {
             return;
         }
-        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundCategory.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.single_block"));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
@@ -323,7 +322,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
         }
 
         @Override
-        public ImmutableList<BlockPos> getAreaEffectBlocks(BlockPos pos, PlayerEntity player) {
+        public ImmutableList<BlockPos> getAreaEffectBlocks(BlockPos pos, Player player) {
 
             return AreaEffectHelper.getBreakableBlocksRadius(container, pos, player, getMode(container));
         }

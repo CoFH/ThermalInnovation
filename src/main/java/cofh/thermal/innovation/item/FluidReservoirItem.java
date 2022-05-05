@@ -8,22 +8,26 @@ import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.IDyeableArmorItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
@@ -40,7 +44,7 @@ import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_STORAGE_VALIDATO
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
-public class FluidReservoirItem extends FluidContainerItemAugmentable implements IColorableItem, IDyeableArmorItem, IMultiModeItem {
+public class FluidReservoirItem extends FluidContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem {
 
     protected static final int FILL = 0;
     protected static final int EMPTY = 1;
@@ -56,23 +60,23 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     }
 
     @Override
-    protected void tooltipDelegate(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+    protected void tooltipDelegate(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 
         tooltip.add(isActive(stack)
-                ? new TranslationTextComponent("info.cofh_use_sneak_deactivate").withStyle(TextFormatting.DARK_GRAY)
-                : new TranslationTextComponent("info.cofh.use_sneak_activate").withStyle(TextFormatting.DARK_GRAY));
+                ? new TranslatableComponent("info.cofh_use_sneak_deactivate").withStyle(ChatFormatting.DARK_GRAY)
+                : new TranslatableComponent("info.cofh.use_sneak_activate").withStyle(ChatFormatting.DARK_GRAY));
 
-        tooltip.add(getTextComponent("info.thermal.reservoir.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
+        tooltip.add(getTextComponent("info.thermal.reservoir.mode." + getMode(stack)).withStyle(ChatFormatting.ITALIC));
         addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
-    public ActionResult<ItemStack> use(World worldIn, PlayerEntity playerIn, Hand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
 
         ItemStack stack = playerIn.getItemInHand(handIn);
-        return useDelegate(stack, playerIn, handIn) ? ActionResult.success(stack) : ActionResult.pass(stack);
+        return useDelegate(stack, playerIn, handIn) ? InteractionResultHolder.success(stack) : InteractionResultHolder.pass(stack);
     }
 
     //    @Override
@@ -82,12 +86,12 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     //    }
 
     @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+    public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
         if (Utils.isClientWorld(worldIn) || Utils.isFakePlayer(entityIn) || !isActive(stack)) {
             return;
         }
-        PlayerEntity player = (PlayerEntity) entityIn;
+        Player player = (Player) entityIn;
         for (ItemStack equip : player.getAllSlots()) {
             if (stack.isEmpty() || equip.equals(stack)) {
                 continue;
@@ -108,14 +112,14 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     }
 
     // region HELPERS
-    protected boolean useDelegate(ItemStack stack, PlayerEntity player, Hand hand) {
+    protected boolean useDelegate(ItemStack stack, Player player, InteractionHand hand) {
 
         if (Utils.isFakePlayer(player)) {
             return false;
         }
         if (player.isSecondaryUseActive()) {
             setActive(stack, !isActive(stack));
-            player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundCategory.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
+            player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.2F, isActive(stack) ? 0.8F : 0.5F);
             return true;
         }
         if (getMode(stack) == FILL) {
@@ -127,18 +131,18 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         return false;
     }
 
-    protected boolean doBucketFill(ItemStack stack, @Nonnull PlayerEntity player, Hand hand) {
+    protected boolean doBucketFill(ItemStack stack, @Nonnull Player player, InteractionHand hand) {
 
         if (getSpace(stack) < BUCKET_VOLUME) {
             return false;
         }
-        World world = player.getCommandSenderWorld();
-        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.SOURCE_ONLY);
+        Level world = player.getCommandSenderWorld();
+        BlockHitResult traceResult = getPlayerPOVHitResult(world, player, ClipContext.Fluid.SOURCE_ONLY);
 
-        if (traceResult.getType() == RayTraceResult.Type.MISS) {
+        if (traceResult.getType() == HitResult.Type.MISS) {
             return false;
         }
-        if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
+        if (traceResult.getType() != HitResult.Type.BLOCK) {
             return false;
         }
         BlockPos pos = traceResult.getBlockPos();
@@ -158,18 +162,18 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         return false;
     }
 
-    protected boolean doBucketEmpty(ItemStack stack, @Nonnull PlayerEntity player, Hand hand) {
+    protected boolean doBucketEmpty(ItemStack stack, @Nonnull Player player, InteractionHand hand) {
 
         if (getFluidAmount(stack) < BUCKET_VOLUME) {
             return false;
         }
-        World world = player.getCommandSenderWorld();
-        BlockRayTraceResult traceResult = getPlayerPOVHitResult(world, player, RayTraceContext.FluidMode.NONE);
+        Level world = player.getCommandSenderWorld();
+        BlockHitResult traceResult = getPlayerPOVHitResult(world, player, ClipContext.Fluid.NONE);
 
-        if (traceResult.getType() == RayTraceResult.Type.MISS) {
+        if (traceResult.getType() == HitResult.Type.MISS) {
             return false;
         }
-        if (traceResult.getType() != RayTraceResult.Type.BLOCK) {
+        if (traceResult.getType() != HitResult.Type.BLOCK) {
             return false;
         }
         BlockPos pos = traceResult.getBlockPos();
@@ -219,10 +223,10 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
 
     // region IMultiModeItem
     @Override
-    public void onModeChange(PlayerEntity player, ItemStack stack) {
+    public void onModeChange(Player player, ItemStack stack) {
 
-        player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundCategory.PLAYERS, 0.6F, 1.0F);
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslationTextComponent("info.thermal.reservoir.mode." + getMode(stack)));
+        player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 0.6F, 1.0F);
+        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.reservoir.mode." + getMode(stack)));
     }
     // endregion
 
@@ -231,7 +235,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     public int getColor(ItemStack item, int colorIndex) {
 
         if (colorIndex == 1) {
-            CompoundNBT nbt = item.getTagElement("display");
+            CompoundTag nbt = item.getTagElement("display");
             return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
         }
         return 0xFFFFFF;

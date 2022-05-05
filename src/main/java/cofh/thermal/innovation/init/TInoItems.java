@@ -1,8 +1,8 @@
 package cofh.thermal.innovation.init;
 
 import cofh.thermal.innovation.item.*;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 
 import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.util.RegistrationHelper.registerItem;
@@ -30,7 +30,7 @@ public class TInoItems {
     // region HELPERS
     private static void registerTools() {
 
-        ItemGroup group = THERMAL_TOOLS;
+        CreativeModeTab group = THERMAL_TOOLS;
 
         int energy = 50000;
         int xfer = 1000;

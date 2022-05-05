@@ -2,13 +2,13 @@ package cofh.thermal.innovation.data;
 
 import cofh.lib.data.RecipeProviderCoFH;
 import cofh.lib.util.DeferredRegisterCoFH;
-import cofh.lib.util.references.ItemTagsCoFH;
+import cofh.lib.util.references.CoFHTags;
 import cofh.thermal.lib.common.ThermalFlags;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.ShapedRecipeBuilder;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
@@ -32,7 +32,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
     }
 
     @Override
-    protected void buildShapelessRecipes(Consumer<IFinishedRecipe> consumer) {
+    protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
         DeferredRegisterCoFH<Item> reg = ITEMS;
 
@@ -40,8 +40,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
         Item rfCoil = reg.get("rf_coil");
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_DRILL))
-                .define('C', ItemTagsCoFH.GEARS_GOLD)
-                .define('G', ItemTagsCoFH.GEARS_TIN)
+                .define('C', CoFHTags.Items.GEARS_GOLD)
+                .define('G', CoFHTags.Items.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('X', reg.get("drill_head"))
@@ -52,8 +52,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_SAW))
-                .define('C', ItemTagsCoFH.GEARS_GOLD)
-                .define('G', ItemTagsCoFH.GEARS_TIN)
+                .define('C', CoFHTags.Items.GEARS_GOLD)
+                .define('G', CoFHTags.Items.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('X', reg.get("saw_blade"))
@@ -64,7 +64,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_CAPACITOR))
-                .define('L', ItemTagsCoFH.INGOTS_LEAD)
+                .define('L', CoFHTags.Items.INGOTS_LEAD)
                 .define('P', rfCoil)
                 .define('R', Tags.Items.DUSTS_REDSTONE)
                 .pattern("RLR")
@@ -74,7 +74,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_MAGNET))
-                .define('L', ItemTagsCoFH.INGOTS_LEAD)
+                .define('L', CoFHTags.Items.INGOTS_LEAD)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('R', Tags.Items.DUSTS_REDSTONE)
@@ -86,7 +86,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUID_RESERVOIR))
                 .define('B', Items.BUCKET)
-                .define('C', ItemTagsCoFH.INGOTS_COPPER)
+                .define('C', Tags.Items.INGOTS_COPPER)
                 .define('G', Tags.Items.GLASS)
                 .define('P', redstoneServo)
                 .define('R', reg.get("cured_rubber"))
@@ -98,8 +98,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_INFUSER))
                 .define('B', Items.GLASS_BOTTLE)
-                .define('C', ItemTagsCoFH.INGOTS_COPPER)
-                .define('G', ItemTagsCoFH.GEARS_SILVER)
+                .define('C', Tags.Items.INGOTS_COPPER)
+                .define('G', CoFHTags.Items.GEARS_SILVER)
                 .define('R', reg.get("cured_rubber"))
                 .pattern("RBR")
                 .pattern("CGC")
@@ -109,8 +109,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_QUIVER))
                 .define('B', Items.GLASS_BOTTLE)
-                .define('C', ItemTagsCoFH.INGOTS_COPPER)
-                .define('G', ItemTagsCoFH.GEARS_SILVER)
+                .define('C', Tags.Items.INGOTS_COPPER)
+                .define('G', CoFHTags.Items.GEARS_SILVER)
                 .define('S', Tags.Items.STRING)
                 .define('R', reg.get("cured_rubber"))
                 .pattern("C C")
