@@ -10,6 +10,7 @@ import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.helpers.AreaEffectHelper;
+import cofh.lib.util.helpers.MathHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -28,6 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -38,6 +40,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -45,6 +48,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraftforge.common.TierSortingRegistry;
+import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -60,8 +65,7 @@ import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
-
-// TODO Lemming ToolActions
+import static net.minecraftforge.common.ToolActions.DEFAULT_AXE_ACTIONS;
 
 public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
@@ -120,7 +124,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return MATERIALS.contains(state.getMaterial()) || state.is(BlockTags.MINEABLE_WITH_AXE) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override
@@ -138,6 +142,21 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
             }
         }
         return multimap;
+    }
+
+    @Override
+    public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
+
+        return DEFAULT_AXE_ACTIONS.contains(toolAction);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+
+        if (state.is(BlockTags.MINEABLE_WITH_AXE)) {
+            return TierSortingRegistry.isCorrectTierForDrops(Tiers.values()[MathHelper.clamp(getHarvestLevel(stack), 0, 4)], state);
+        }
+        return false;
     }
 
     @Override

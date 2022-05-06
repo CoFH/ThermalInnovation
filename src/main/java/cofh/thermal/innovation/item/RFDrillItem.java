@@ -10,6 +10,7 @@ import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.helpers.AreaEffectHelper;
+import cofh.lib.util.helpers.MathHelper;
 import cofh.thermal.lib.common.ThermalConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -26,6 +27,7 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -35,12 +37,15 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
+import net.minecraftforge.common.TierSortingRegistry;
+import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -54,11 +59,14 @@ import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
+import static net.minecraftforge.common.ToolActions.PICKAXE_DIG;
+import static net.minecraftforge.common.ToolActions.SHOVEL_DIG;
 
 // TODO: Lemming ToolActions
 
 public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
+    protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
     protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
@@ -113,7 +121,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return MATERIALS.contains(state.getMaterial()) || state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override
@@ -131,6 +139,21 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
             }
         }
         return multimap;
+    }
+
+    @Override
+    public boolean canPerformAction(ItemStack stack, ToolAction toolAction) {
+
+        return DEFAULT_DRILL_ACTIONS.contains(toolAction);
+    }
+
+    @Override
+    public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
+
+        if (state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL)) {
+            return TierSortingRegistry.isCorrectTierForDrops(Tiers.values()[MathHelper.clamp(getHarvestLevel(stack), 0, 4)], state);
+        }
+        return false;
     }
 
     @Override
