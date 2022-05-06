@@ -11,7 +11,7 @@ import cofh.lib.util.Utils;
 import cofh.lib.util.filter.IFilter;
 import cofh.lib.util.filter.IFilterableItem;
 import cofh.lib.util.helpers.FilterHelper;
-import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import net.minecraft.ChatFormatting;
@@ -72,7 +72,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (getEnergyStored(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
-        numSlots = () -> ThermalConfig.toolAugments;
+        numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
     }
 

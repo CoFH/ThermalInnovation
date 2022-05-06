@@ -6,7 +6,7 @@ import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import cofh.thermal.lib.util.ThermalEnergyHelper;
@@ -48,7 +48,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (isActive(stack) ? 0.5F : 0) + (getMode(stack) / 8.0F));
         ProxyUtils.registerColorable(this);
 
-        numSlots = () -> ThermalConfig.storageAugments;
+        numSlots = () -> ThermalCoreConfig.storageAugments;
         augValidator = ENERGY_STORAGE_VALIDATOR;
     }
 

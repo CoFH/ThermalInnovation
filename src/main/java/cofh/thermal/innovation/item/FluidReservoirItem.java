@@ -6,7 +6,7 @@ import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -55,7 +55,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
 
         ProxyUtils.registerColorable(this);
 
-        numSlots = () -> ThermalConfig.storageAugments;
+        numSlots = () -> ThermalCoreConfig.storageAugments;
         augValidator = FLUID_STORAGE_VALIDATOR;
     }
 

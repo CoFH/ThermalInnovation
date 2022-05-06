@@ -10,7 +10,7 @@ import cofh.lib.fluid.IFluidContainerItem;
 import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
@@ -67,7 +67,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (getFluidAmount(stack) > 0 ? 0.5F : 0) + (getMode(stack) > 0 ? 0.25F : 0));
         ProxyUtils.registerColorable(this);
 
-        numSlots = () -> ThermalConfig.toolAugments;
+        numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_FLUID, TAG_AUGMENT_TYPE_POTION, TAG_AUGMENT_TYPE_FILTER);
     }
 

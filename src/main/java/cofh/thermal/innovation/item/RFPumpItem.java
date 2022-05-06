@@ -8,7 +8,7 @@ import cofh.lib.energy.EnergyContainerItemWrapper;
 import cofh.lib.energy.IEnergyContainerItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.helpers.AreaEffectHelper;
-import cofh.thermal.lib.common.ThermalConfig;
+import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.ImmutableList;
@@ -52,7 +52,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("charged"), (stack, world, entity, seed) -> getEnergyStored(stack) > 0 ? 1F : 0F);
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity, seed) -> getEnergyStored(stack) > 0 && hasActiveTag(stack) ? 1F : 0F);
 
-        numSlots = () -> ThermalConfig.toolAugments;
+        numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
     }
 
