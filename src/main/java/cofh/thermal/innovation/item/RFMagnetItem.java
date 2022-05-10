@@ -79,7 +79,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             tooltip.add(getTextComponent("info.thermal.magnet.use.sneak").withStyle(TextFormatting.DARK_GRAY));
         }
         tooltip.add(getTextComponent("info.thermal.magnet.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
-        addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
+        addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
 
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }

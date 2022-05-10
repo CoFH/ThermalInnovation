@@ -33,20 +33,20 @@ side = "BOTH"
 [[dependencies.thermal_innovation]]
 modId = "cofh_core"
 mandatory = true
-versionRange = "[1.4,1.5]"
+versionRange = "[1.5,1.6]"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.thermal_innovation]]
 modId = "thermal"
 mandatory = true
-versionRange = "[1.4,1.5]"
+versionRange = "[1.5,1.6]"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.thermal_innovation]]
 modId = "thermal_foundation"
 mandatory = true
-versionRange = "[1.4,1.5]"
+versionRange = "[1.5,1.6]"
 ordering = "AFTER"
 side = "BOTH"

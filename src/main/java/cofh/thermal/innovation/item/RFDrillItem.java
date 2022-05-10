@@ -104,7 +104,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
             tooltip.add(new TranslationTextComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(TextFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
-            addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
+            addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
         }
         super.tooltipDelegate(stack, worldIn, tooltip, flagIn);
     }

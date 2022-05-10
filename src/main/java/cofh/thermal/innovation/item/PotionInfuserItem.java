@@ -80,7 +80,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
         tooltip.add(getTextComponent("info.thermal.infuser.use.sneak").withStyle(TextFormatting.DARK_GRAY));
 
         tooltip.add(getTextComponent("info.thermal.infuser.mode." + getMode(stack)).withStyle(TextFormatting.ITALIC));
-        addIncrementModeChangeTooltip(stack, worldIn, tooltip, flagIn);
+        addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
 
         FluidStack fluid = getFluid(stack);
         List<EffectInstance> effects = new ArrayList<>();
