@@ -62,8 +62,6 @@ import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.common.ToolActions.PICKAXE_DIG;
 import static net.minecraftforge.common.ToolActions.SHOVEL_DIG;
 
-// TODO: Lemming ToolActions
-
 public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
