@@ -10,7 +10,6 @@ import cofh.lib.item.IColorableItem;
 import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.helpers.AreaEffectHelper;
-import cofh.lib.util.helpers.MathHelper;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -38,10 +37,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeableLeatherItem;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Tiers;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -154,7 +150,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
 
         if (state.is(BlockTags.MINEABLE_WITH_AXE)) {
-            return TierSortingRegistry.isCorrectTierForDrops(Tiers.values()[MathHelper.clamp(getHarvestLevel(stack), 0, 4)], state);
+            return TierSortingRegistry.isCorrectTierForDrops(getHarvestTier(stack), state);
         }
         return false;
     }
@@ -278,9 +274,19 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
         return ENERGY_PER_USE;
     }
 
+    protected Tier getHarvestTier(ItemStack stack) {
+
+        return switch (getHarvestLevel(stack)) {
+            case 2 -> Tiers.IRON;
+            case 3 -> Tiers.DIAMOND;
+            case 0, 1 -> Tiers.WOOD;
+            default -> Tiers.NETHERITE;
+        };
+    }
+
     protected int getHarvestLevel(ItemStack stack) {
 
-        return hasEnergy(stack) ? Math.max(2, (int) getBaseMod(stack)) : -1;
+        return hasEnergy(stack) ? Math.max(2, (int) getBaseMod(stack)) : 0;
     }
 
     protected int getRadius(ItemStack stack) {
