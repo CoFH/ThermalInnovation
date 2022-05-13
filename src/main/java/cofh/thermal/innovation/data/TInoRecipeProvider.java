@@ -1,7 +1,6 @@
 package cofh.thermal.innovation.data;
 
 import cofh.lib.data.RecipeProviderCoFH;
-import cofh.lib.util.DeferredRegisterCoFH;
 import cofh.lib.util.references.CoFHTags;
 import cofh.thermal.lib.common.ThermalFlags;
 import net.minecraft.data.DataGenerator;
@@ -34,7 +33,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
     @Override
     protected void buildCraftingRecipes(Consumer<FinishedRecipe> consumer) {
 
-        DeferredRegisterCoFH<Item> reg = ITEMS;
+        var reg = ITEMS;
 
         Item redstoneServo = reg.get("redstone_servo");
         Item rfCoil = reg.get("rf_coil");
