@@ -31,7 +31,6 @@ public class TInoDataGen {
 
         gen.addProvider(blockTags);
         gen.addProvider(new TInoTagsProvider.Item(gen, blockTags, exFileHelper));
-        gen.addProvider(new TInoTagsProvider.Fluid(gen, exFileHelper));
 
         gen.addProvider(new TInoRecipeProvider(gen));
     }

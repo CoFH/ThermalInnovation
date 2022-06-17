@@ -10,6 +10,7 @@ displayName = "Thermal Innovation"
 updateJSONURL = "https://raw.github.com/cofh/version/master/thermal/update_innovation.json"
 displayURL = "https://teamcofh.com/"
 logoFile = "thermal_innovation.png"
+itemIcon = "thermal:flux_drill"
 credits = "Team CoFH"
 authors = "King Lemming"
 description = '''

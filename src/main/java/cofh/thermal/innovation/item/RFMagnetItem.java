@@ -105,7 +105,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if (!Utils.timeCheckQuarter(worldIn)) {
+        if (!Utils.timeCheckQuarter()) {
             return;
         }
         if (Utils.isClientWorld(worldIn) || Utils.isFakePlayer(entityIn) || getMode(stack) <= 0) {

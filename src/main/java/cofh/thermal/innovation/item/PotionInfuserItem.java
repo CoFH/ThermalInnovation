@@ -144,7 +144,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
     @Override
     public void inventoryTick(ItemStack stack, Level worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
 
-        if (!Utils.timeCheck(worldIn)) {
+        if (!Utils.timeCheck()) {
             return;
         }
         if (Utils.isClientWorld(worldIn)) {
