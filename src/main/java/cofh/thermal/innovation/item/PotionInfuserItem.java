@@ -1,17 +1,16 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -36,8 +35,8 @@ import java.util.function.BiPredicate;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
@@ -101,7 +100,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
         if (getFluidAmount(stack) <= 0) {
             return super.getBarColor(stack);
         }
-        return getFluid(stack).getFluid().getAttributes().getColor(getFluid(stack));
+        return FluidHelper.color(getFluid(stack));
     }
 
     @Override
@@ -229,7 +228,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
             CompoundTag nbt = item.getTagElement("display");
             return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
         } else if (colorIndex == 2) {
-            return getFluidAmount(item) > 0 ? getFluid(item).getFluid().getAttributes().getColor(getFluid(item)) : 0xFFFFFF;
+            return getFluidAmount(item) > 0 ? FluidHelper.color(getFluid(item)) : 0xFFFFFF;
         }
         return 0xFFFFFF;
     }
@@ -240,7 +239,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.infuser.mode." + getMode(stack)));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.infuser.mode." + getMode(stack)));
     }
     // endregion
 }

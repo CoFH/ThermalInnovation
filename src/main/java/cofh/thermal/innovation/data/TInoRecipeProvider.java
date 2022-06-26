@@ -1,7 +1,7 @@
 package cofh.thermal.innovation.data;
 
 import cofh.lib.data.RecipeProviderCoFH;
-import cofh.lib.util.references.CoFHTags;
+import cofh.lib.tags.ItemTagsCoFH;
 import cofh.thermal.lib.common.ThermalFlags;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
@@ -12,7 +12,7 @@ import net.minecraftforge.common.Tags;
 
 import java.util.function.Consumer;
 
-import static cofh.lib.util.constants.Constants.ID_THERMAL;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL;
 import static cofh.thermal.core.ThermalCore.ITEMS;
 import static cofh.thermal.innovation.init.TInoIDs.*;
 
@@ -39,8 +39,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
         Item rfCoil = reg.get("rf_coil");
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_DRILL))
-                .define('C', CoFHTags.Items.GEARS_GOLD)
-                .define('G', CoFHTags.Items.GEARS_TIN)
+                .define('C', ItemTagsCoFH.GEARS_GOLD)
+                .define('G', ItemTagsCoFH.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('X', reg.get("drill_head"))
@@ -51,8 +51,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_SAW))
-                .define('C', CoFHTags.Items.GEARS_GOLD)
-                .define('G', CoFHTags.Items.GEARS_TIN)
+                .define('C', ItemTagsCoFH.GEARS_GOLD)
+                .define('G', ItemTagsCoFH.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('X', reg.get("saw_blade"))
@@ -63,7 +63,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_CAPACITOR))
-                .define('L', CoFHTags.Items.INGOTS_LEAD)
+                .define('L', ItemTagsCoFH.INGOTS_LEAD)
                 .define('P', rfCoil)
                 .define('R', Tags.Items.DUSTS_REDSTONE)
                 .pattern("RLR")
@@ -73,7 +73,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_MAGNET))
-                .define('L', CoFHTags.Items.INGOTS_LEAD)
+                .define('L', ItemTagsCoFH.INGOTS_LEAD)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('R', Tags.Items.DUSTS_REDSTONE)
@@ -98,7 +98,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_INFUSER))
                 .define('B', Items.GLASS_BOTTLE)
                 .define('C', Tags.Items.INGOTS_COPPER)
-                .define('G', CoFHTags.Items.GEARS_SILVER)
+                .define('G', ItemTagsCoFH.GEARS_SILVER)
                 .define('R', reg.get("cured_rubber"))
                 .pattern("RBR")
                 .pattern("CGC")
@@ -109,7 +109,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_QUIVER))
                 .define('B', Items.GLASS_BOTTLE)
                 .define('C', Tags.Items.INGOTS_COPPER)
-                .define('G', CoFHTags.Items.GEARS_SILVER)
+                .define('G', ItemTagsCoFH.GEARS_SILVER)
                 .define('S', Tags.Items.STRING)
                 .define('R', reg.get("cured_rubber"))
                 .pattern("C C")

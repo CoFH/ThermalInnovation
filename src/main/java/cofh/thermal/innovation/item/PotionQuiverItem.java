@@ -1,14 +1,14 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.capability.CapabilityArchery;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.capability.CapabilityArchery;
-import cofh.lib.capability.IArcheryAmmoItem;
+import cofh.lib.api.capability.IArcheryAmmoItem;
+import cofh.lib.api.item.IColorableItem;
+import cofh.lib.api.item.IFluidContainerItem;
 import cofh.lib.fluid.FluidContainerItemWrapper;
-import cofh.lib.fluid.IFluidContainerItem;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
@@ -16,7 +16,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -40,13 +39,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static cofh.lib.item.ContainerType.ITEM;
+import static cofh.core.util.helpers.ArcheryHelper.findArrows;
+import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
+import static cofh.core.util.helpers.ItemHelper.areItemStacksEqualIgnoreTags;
+import static cofh.lib.api.ContainerType.ITEM;
 import static cofh.lib.util.Utils.getItemEnchantmentLevel;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.ArcheryHelper.findArrows;
-import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
-import static cofh.lib.util.helpers.ItemHelper.areItemStacksEqualIgnoreTags;
 import static cofh.lib.util.helpers.StringHelper.*;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
@@ -104,7 +103,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         if (getFluidAmount(stack) <= 0) {
             return super.getBarColor(stack);
         }
-        return getFluid(stack).getFluid().getAttributes().getColor(getFluid(stack));
+        return FluidHelper.color(getFluid(stack));
     }
 
     @Override
@@ -231,7 +230,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             CompoundTag nbt = item.getTagElement("display");
             return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
         } else if (colorIndex == 2) {
-            return getFluidAmount(item) > 0 ? getFluid(item).getFluid().getAttributes().getColor(getFluid(item)) : 0xFFFFFF;
+            return getFluidAmount(item) > 0 ? FluidHelper.color(getFluid(item)) : 0xFFFFFF;
         }
         return 0xFFFFFF;
     }
@@ -242,7 +241,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.quiver.mode." + getMode(stack)));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.quiver.mode." + getMode(stack)));
     }
     // endregion
 

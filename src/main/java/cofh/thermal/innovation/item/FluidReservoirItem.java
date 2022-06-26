@@ -1,10 +1,10 @@
 package cofh.thermal.innovation.item;
 
 import cofh.core.compat.curios.CuriosProxy;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -38,7 +37,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static cofh.lib.util.constants.Constants.BUCKET_VOLUME;
+import static cofh.lib.util.Constants.BUCKET_VOLUME;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_STORAGE_VALIDATOR;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
@@ -63,8 +62,8 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     protected void tooltipDelegate(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 
         tooltip.add(isActive(stack)
-                ? new TranslatableComponent("info.cofh_use_sneak_deactivate").withStyle(ChatFormatting.DARK_GRAY)
-                : new TranslatableComponent("info.cofh.use_sneak_activate").withStyle(ChatFormatting.DARK_GRAY));
+                ? Component.translatable("info.cofh_use_sneak_deactivate").withStyle(ChatFormatting.DARK_GRAY)
+                : Component.translatable("info.cofh.use_sneak_activate").withStyle(ChatFormatting.DARK_GRAY));
 
         tooltip.add(getTextComponent("info.thermal.reservoir.mode." + getMode(stack)).withStyle(ChatFormatting.ITALIC));
         addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
@@ -226,7 +225,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 0.6F, 1.0F);
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.reservoir.mode." + getMode(stack)));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.reservoir.mode." + getMode(stack)));
     }
     // endregion
 

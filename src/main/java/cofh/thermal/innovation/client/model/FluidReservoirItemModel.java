@@ -1,8 +1,8 @@
 package cofh.thermal.innovation.client.model;
 
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.item.ICoFHItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.ICoFHItem;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
@@ -24,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.client.model.*;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 import net.minecraftforge.fluids.FluidStack;
@@ -34,8 +35,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static cofh.lib.util.constants.Constants.BUCKET_VOLUME;
-import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
+import static cofh.lib.util.Constants.BUCKET_VOLUME;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
 public final class FluidReservoirItemModel implements IModelGeometry<FluidReservoirItemModel> {
 
@@ -87,7 +88,7 @@ public final class FluidReservoirItemModel implements IModelGeometry<FluidReserv
         ModelState transformsFromModel = owner.getCombinedTransform();
         Fluid fluid = fluidStack.getFluid();
 
-        TextureAtlasSprite fluidSprite = fluid != Fluids.EMPTY ? spriteGetter.apply(ForgeHooksClient.getBlockMaterial(fluid.getAttributes().getStillTexture())) : null;
+        TextureAtlasSprite fluidSprite = fluid != Fluids.EMPTY ? spriteGetter.apply(ForgeHooksClient.getBlockMaterial(RenderProperties.get(fluid).getStillTexture(fluidStack))) : null;
         ImmutableMap<ItemTransforms.TransformType, Transformation> transformMap =
                 PerspectiveMapWrapper.getTransforms(new CompositeModelState(transformsFromModel, modelTransform));
 
@@ -110,8 +111,8 @@ public final class FluidReservoirItemModel implements IModelGeometry<FluidReserv
             TextureAtlasSprite templateSprite = spriteGetter.apply(fluidMaskLocation);
             if (templateSprite != null) {
                 // build liquid layer (inside)
-                int luminosity = fluid.getAttributes().getLuminosity(fluidStack);
-                int color = fluid.getAttributes().getColor(fluidStack);
+                int luminosity = FluidHelper.luminosity(fluidStack);
+                int color = FluidHelper.color(fluidStack);
                 builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, NORTH_Z_FLUID, Direction.NORTH, color, 2, luminosity));
                 builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 2, luminosity));
             }

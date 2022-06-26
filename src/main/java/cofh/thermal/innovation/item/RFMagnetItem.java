@@ -1,16 +1,16 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
+import cofh.core.util.filter.IFilter;
+import cofh.core.util.filter.IFilterableItem;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
-import cofh.lib.util.RayTracer;
+import cofh.core.util.helpers.FilterHelper;
+import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
-import cofh.lib.util.filter.IFilter;
-import cofh.lib.util.filter.IFilterableItem;
-import cofh.lib.util.helpers.FilterHelper;
+import cofh.lib.util.raytracer.RayTracer;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -19,7 +19,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -45,8 +44,8 @@ import java.util.List;
 import java.util.WeakHashMap;
 import java.util.function.Predicate;
 
+import static cofh.core.util.helpers.AugmentableHelper.*;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.*;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
@@ -203,7 +202,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             }
             player.swing(hand);
             stack.setPopTime(5);
-            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 1.0F);
+            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET.get(), SoundSource.PLAYERS, 0.4F, 1.0F);
         }
         return true;
     }
@@ -273,8 +272,8 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     public void onModeChange(Player player, ItemStack stack) {
 
-        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.magnet.mode." + getMode(stack)));
+        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET.get(), SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion
 }

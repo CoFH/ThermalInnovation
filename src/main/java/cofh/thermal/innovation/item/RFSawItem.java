@@ -1,15 +1,15 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.capability.CapabilityAreaEffect;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
+import cofh.core.util.helpers.AreaEffectHelper;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.lib.capability.CapabilityAreaEffect;
-import cofh.lib.capability.IAreaEffect;
+import cofh.lib.api.capability.IAreaEffectItem;
+import cofh.lib.api.item.IColorableItem;
+import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.energy.EnergyContainerItemWrapper;
-import cofh.lib.energy.IEnergyContainerItem;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
-import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -23,7 +23,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -57,9 +56,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.common.ToolActions.DEFAULT_AXE_ACTIONS;
 
@@ -101,9 +100,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            tooltip.add(new TranslatableComponent("info.cofh.single_block").withStyle(ChatFormatting.ITALIC));
+            tooltip.add(Component.translatable("info.cofh.single_block").withStyle(ChatFormatting.ITALIC));
         } else {
-            tooltip.add(new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius).withStyle(ChatFormatting.ITALIC));
+            tooltip.add(Component.translatable("info.cofh.area").append(": " + radius + "x" + radius).withStyle(ChatFormatting.ITALIC));
         }
         if (getNumModes(stack) > 1) {
             addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
@@ -329,17 +328,17 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
         player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.single_block"));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.cofh.area").append(": " + radius + "x" + radius));
+            ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion
 
     // region CAPABILITY WRAPPER
-    protected class RFSawItemWrapper extends EnergyContainerItemWrapper implements IAreaEffect {
+    protected class RFSawItemWrapper extends EnergyContainerItemWrapper implements IAreaEffectItem {
 
-        private final LazyOptional<IAreaEffect> holder = LazyOptional.of(() -> this);
+        private final LazyOptional<IAreaEffectItem> holder = LazyOptional.of(() -> this);
 
         RFSawItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 
