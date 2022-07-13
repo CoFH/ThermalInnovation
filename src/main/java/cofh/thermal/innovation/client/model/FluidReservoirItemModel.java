@@ -25,8 +25,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.RenderProperties;
-import net.minecraftforge.client.model.*;
-import net.minecraftforge.client.model.geometry.IModelGeometry;
+import net.minecraftforge.client.model.ItemLayerModel;
+import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
+import net.minecraftforge.client.model.geometry.IGeometryLoader;
+import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -38,7 +40,7 @@ import java.util.function.Function;
 import static cofh.lib.util.Constants.BUCKET_VOLUME;
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
-public final class FluidReservoirItemModel implements IModelGeometry<FluidReservoirItemModel> {
+public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidReservoirItemModel> {
 
     // minimal Z offset to prevent depth-fighting
     private static final float NORTH_Z_FLUID = 7.498F / 16F;
@@ -65,25 +67,25 @@ public final class FluidReservoirItemModel implements IModelGeometry<FluidReserv
     }
 
     @Override
-    public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
 
-        Material particleLocation = owner.isTexturePresent("particle") ? owner.resolveTexture("particle") : null;
-        Material fluidMaskLocation = owner.isTexturePresent("fluid_mask") ? owner.resolveTexture("fluid_mask") : null;
+        Material particleLocation = owner.hasMaterial("particle") ? owner.getMaterial("particle") : null;
+        Material fluidMaskLocation = owner.hasMaterial("fluid_mask") ? owner.getMaterial("fluid_mask") : null;
 
         Material[] inactiveLocations = new Material[2];
         Material[] activeLocations = new Material[2];
         Material[] baseLocations = new Material[2];
         Material[] colorLocations = new Material[2];
 
-        inactiveLocations[0] = owner.isTexturePresent("mode_0") ? owner.resolveTexture("mode_0") : null;
-        inactiveLocations[1] = owner.isTexturePresent("mode_1") ? owner.resolveTexture("mode_1") : null;
-        activeLocations[0] = owner.isTexturePresent("active_0") ? owner.resolveTexture("active_0") : null;
-        activeLocations[1] = owner.isTexturePresent("active_1") ? owner.resolveTexture("active_1") : null;
+        inactiveLocations[0] = owner.hasMaterial("mode_0") ? owner.getMaterial("mode_0") : null;
+        inactiveLocations[1] = owner.hasMaterial("mode_1") ? owner.getMaterial("mode_1") : null;
+        activeLocations[0] = owner.hasMaterial("active_0") ? owner.getMaterial("active_0") : null;
+        activeLocations[1] = owner.hasMaterial("active_1") ? owner.getMaterial("active_1") : null;
 
-        baseLocations[0] = owner.isTexturePresent("base_0") ? owner.resolveTexture("base_0") : null;
-        baseLocations[1] = owner.isTexturePresent("base_1") ? owner.resolveTexture("base_1") : null;
-        colorLocations[0] = owner.isTexturePresent("color_0") ? owner.resolveTexture("color_0") : null;
-        colorLocations[1] = owner.isTexturePresent("color_1") ? owner.resolveTexture("color_1") : null;
+        baseLocations[0] = owner.hasMaterial("base_0") ? owner.getMaterial("base_0") : null;
+        baseLocations[1] = owner.hasMaterial("base_1") ? owner.getMaterial("base_1") : null;
+        colorLocations[0] = owner.hasMaterial("color_0") ? owner.getMaterial("color_0") : null;
+        colorLocations[1] = owner.hasMaterial("color_1") ? owner.getMaterial("color_1") : null;
 
         ModelState transformsFromModel = owner.getCombinedTransform();
         Fluid fluid = fluidStack.getFluid();
@@ -122,44 +124,44 @@ public final class FluidReservoirItemModel implements IModelGeometry<FluidReserv
     }
 
     @Override
-    public Collection<Material> getTextures(IModelConfiguration owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
+    public Collection<Material> getMaterials(IGeometryBakingContext owner, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
 
         Set<Material> texs = Sets.newHashSet();
 
-        if (owner.isTexturePresent("particle")) {
-            texs.add(owner.resolveTexture("particle"));
+        if (owner.hasMaterial("particle")) {
+            texs.add(owner.getMaterial("particle"));
         }
-        if (owner.isTexturePresent("fluid_mask")) {
-            texs.add(owner.resolveTexture("fluid_mask"));
+        if (owner.hasMaterial("fluid_mask")) {
+            texs.add(owner.getMaterial("fluid_mask"));
         }
-        if (owner.isTexturePresent("base_0")) {
-            texs.add(owner.resolveTexture("base_0"));
+        if (owner.hasMaterial("base_0")) {
+            texs.add(owner.getMaterial("base_0"));
         }
-        if (owner.isTexturePresent("base_1")) {
-            texs.add(owner.resolveTexture("base_1"));
+        if (owner.hasMaterial("base_1")) {
+            texs.add(owner.getMaterial("base_1"));
         }
-        if (owner.isTexturePresent("color_0")) {
-            texs.add(owner.resolveTexture("color_0"));
+        if (owner.hasMaterial("color_0")) {
+            texs.add(owner.getMaterial("color_0"));
         }
-        if (owner.isTexturePresent("color_1")) {
-            texs.add(owner.resolveTexture("color_1"));
+        if (owner.hasMaterial("color_1")) {
+            texs.add(owner.getMaterial("color_1"));
         }
-        if (owner.isTexturePresent("mode_0")) {
-            texs.add(owner.resolveTexture("mode_0"));
+        if (owner.hasMaterial("mode_0")) {
+            texs.add(owner.getMaterial("mode_0"));
         }
-        if (owner.isTexturePresent("mode_1")) {
-            texs.add(owner.resolveTexture("mode_1"));
+        if (owner.hasMaterial("mode_1")) {
+            texs.add(owner.getMaterial("mode_1"));
         }
-        if (owner.isTexturePresent("active_0")) {
-            texs.add(owner.resolveTexture("active_0"));
+        if (owner.hasMaterial("active_0")) {
+            texs.add(owner.getMaterial("active_0"));
         }
-        if (owner.isTexturePresent("active_1")) {
-            texs.add(owner.resolveTexture("active_1"));
+        if (owner.hasMaterial("active_1")) {
+            texs.add(owner.getMaterial("active_1"));
         }
         return texs;
     }
 
-    public static class Loader implements IModelLoader<FluidReservoirItemModel> {
+    public static class Loader implements IGeometryLoader<FluidReservoirItemModel> {
 
         @Override
         public void onResourceManagerReload(ResourceManager resourceManager) {
@@ -187,10 +189,10 @@ public final class FluidReservoirItemModel implements IModelGeometry<FluidReserv
 
         private final Map<List<Integer>, BakedModel> cache = new Object2ObjectOpenHashMap<>(); // contains all the baked models since they'll never change
         private final ModelBakery bakery;
-        private final IModelConfiguration owner;
+        private final IGeometryBakingContext owner;
         private final FluidReservoirItemModel parent;
 
-        private ContainedFluidOverrideHandler(ModelBakery bakery, IModelConfiguration owner, FluidReservoirItemModel parent) {
+        private ContainedFluidOverrideHandler(ModelBakery bakery, IGeometryBakingContext owner, FluidReservoirItemModel parent) {
 
             this.bakery = bakery;
             this.owner = owner;
