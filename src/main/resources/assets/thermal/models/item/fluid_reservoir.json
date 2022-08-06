@@ -1,5 +1,5 @@
 {
-  "loader": "thermal:reservoir",
+  "loader": "thermal_innovation:reservoir",
   "parent": "forge:item/default",
   "textures": {
     "fluid_mask": "thermal:item/fluid_reservoir_mask",

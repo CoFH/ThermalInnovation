@@ -3,32 +3,33 @@ package cofh.thermal.innovation.client.model;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.item.ICoFHItem;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
+import com.mojang.math.Vector3f;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.RenderProperties;
-import net.minecraftforge.client.model.ItemLayerModel;
-import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import net.minecraftforge.client.ForgeRenderTypes;
+import net.minecraftforge.client.RenderTypeGroup;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraftforge.client.model.CompositeModel;
+import net.minecraftforge.client.model.IQuadTransformer;
+import net.minecraftforge.client.model.SimpleModelState;
+import net.minecraftforge.client.model.geometry.*;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -42,9 +43,11 @@ import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
 public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidReservoirItemModel> {
 
-    // minimal Z offset to prevent depth-fighting
-    private static final float NORTH_Z_FLUID = 7.498F / 16F;
-    private static final float SOUTH_Z_FLUID = 8.502F / 16F;
+    // Depth offsets to prevent Z-fighting
+    private static final Transformation FLUID_TRANSFORM = new Transformation(Vector3f.ZERO, Quaternion.ONE, new Vector3f(1, 1, 1.002f), Quaternion.ONE);
+    private static final Transformation COVER_TRANSFORM = new Transformation(Vector3f.ZERO, Quaternion.ONE, new Vector3f(1, 1, 1.004f), Quaternion.ONE);
+    // Transformer to set quads to max brightness
+    private static final IQuadTransformer MAX_LIGHTMAP_TRANSFORMER = IQuadTransformer.applyingLightmap(0x00F000F0);
 
     @Nonnull
     private final FluidStack fluidStack;
@@ -67,60 +70,70 @@ public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidRese
     }
 
     @Override
-    public BakedModel bake(IGeometryBakingContext owner, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
+    public BakedModel bake(IGeometryBakingContext context, ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ItemOverrides overrides, ResourceLocation modelLocation) {
 
-        Material particleLocation = owner.hasMaterial("particle") ? owner.getMaterial("particle") : null;
-        Material fluidMaskLocation = owner.hasMaterial("fluid_mask") ? owner.getMaterial("fluid_mask") : null;
+        Material particleLocation = context.hasMaterial("particle") ? context.getMaterial("particle") : null;
+        Material fluidMaskLocation = context.hasMaterial("fluid_mask") ? context.getMaterial("fluid_mask") : null;
 
         Material[] inactiveLocations = new Material[2];
         Material[] activeLocations = new Material[2];
         Material[] baseLocations = new Material[2];
         Material[] colorLocations = new Material[2];
 
-        inactiveLocations[0] = owner.hasMaterial("mode_0") ? owner.getMaterial("mode_0") : null;
-        inactiveLocations[1] = owner.hasMaterial("mode_1") ? owner.getMaterial("mode_1") : null;
-        activeLocations[0] = owner.hasMaterial("active_0") ? owner.getMaterial("active_0") : null;
-        activeLocations[1] = owner.hasMaterial("active_1") ? owner.getMaterial("active_1") : null;
+        inactiveLocations[0] = context.hasMaterial("mode_0") ? context.getMaterial("mode_0") : null;
+        inactiveLocations[1] = context.hasMaterial("mode_1") ? context.getMaterial("mode_1") : null;
+        activeLocations[0] = context.hasMaterial("active_0") ? context.getMaterial("active_0") : null;
+        activeLocations[1] = context.hasMaterial("active_1") ? context.getMaterial("active_1") : null;
 
-        baseLocations[0] = owner.hasMaterial("base_0") ? owner.getMaterial("base_0") : null;
-        baseLocations[1] = owner.hasMaterial("base_1") ? owner.getMaterial("base_1") : null;
-        colorLocations[0] = owner.hasMaterial("color_0") ? owner.getMaterial("color_0") : null;
-        colorLocations[1] = owner.hasMaterial("color_1") ? owner.getMaterial("color_1") : null;
+        baseLocations[0] = context.hasMaterial("base_0") ? context.getMaterial("base_0") : null;
+        baseLocations[1] = context.hasMaterial("base_1") ? context.getMaterial("base_1") : null;
+        colorLocations[0] = context.hasMaterial("color_0") ? context.getMaterial("color_0") : null;
+        colorLocations[1] = context.hasMaterial("color_1") ? context.getMaterial("color_1") : null;
 
-        ModelState transformsFromModel = owner.getCombinedTransform();
         Fluid fluid = fluidStack.getFluid();
 
-        TextureAtlasSprite fluidSprite = fluid != Fluids.EMPTY ? spriteGetter.apply(ForgeHooksClient.getBlockMaterial(RenderProperties.get(fluid).getStillTexture(fluidStack))) : null;
-        ImmutableMap<ItemTransforms.TransformType, Transformation> transformMap =
-                PerspectiveMapWrapper.getTransforms(new CompositeModelState(transformsFromModel, modelTransform));
-
+        TextureAtlasSprite fluidSprite = fluid != Fluids.EMPTY ? spriteGetter.apply(ForgeHooksClient.getBlockMaterial(IClientFluidTypeExtensions.of(fluid).getStillTexture(fluidStack))) : null;
         TextureAtlasSprite particleSprite = particleLocation != null ? spriteGetter.apply(particleLocation) : null;
-        if (particleSprite == null) particleSprite = fluidSprite;
-
-        Transformation transform = modelTransform.getRotation();
-        ItemMultiLayerBakedModel.Builder builder = ItemMultiLayerBakedModel.builder(owner, particleSprite, new ContainedFluidOverrideHandler(bakery, owner, this), transformMap);
+        if (particleSprite == null) {
+            particleSprite = fluidSprite != null ? fluidSprite : spriteGetter.apply(baseLocations[0]);
+        }
+        var itemContext = StandaloneGeometryBakingContext.builder(context).withGui3d(false).withUseBlockLight(false).build(modelLocation);
+        var modelBuilder = CompositeModel.Baked.builder(itemContext, particleSprite, new ContainedFluidOverrideHandler(bakery, itemContext, this), context.getTransforms());
+        var normalRenderTypes = getLayerRenderTypes();
 
         Material modeLayer = active ? activeLocations[mode % 2] : inactiveLocations[mode % 2];
         if (modeLayer != null) {
-            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprite(0, spriteGetter.apply(modeLayer), transform));
+            var modeSprite = spriteGetter.apply(modeLayer);
+            var unbaked = UnbakedGeometryHelper.createUnbakedItemElements(0, modeSprite);
+            var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> modeSprite, modelState, modelLocation);
+            modelBuilder.addQuads(normalRenderTypes, quads);
         }
         Material frameLayer = color ? colorLocations[mode % 2] : baseLocations[mode % 2];
         if (frameLayer != null) {
-            builder.addQuads(ItemLayerModel.getLayerRenderType(false), ItemLayerModel.getQuadsForSprite(1, spriteGetter.apply(frameLayer), transform));
+            var frameSprite = spriteGetter.apply(frameLayer);
+            var unbaked = UnbakedGeometryHelper.createUnbakedItemElements(1, frameSprite);
+            var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> frameSprite, modelState, modelLocation);
+            modelBuilder.addQuads(normalRenderTypes, quads);
         }
 
         if (fluidMaskLocation != null && fluidSprite != null) {
             TextureAtlasSprite templateSprite = spriteGetter.apply(fluidMaskLocation);
             if (templateSprite != null) {
-                // build liquid layer (inside)
-                int luminosity = FluidHelper.luminosity(fluidStack);
-                int color = FluidHelper.color(fluidStack);
-                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, NORTH_Z_FLUID, Direction.NORTH, color, 2, luminosity));
-                builder.addQuads(ItemLayerModel.getLayerRenderType(luminosity > 0), ItemTextureQuadConverter.convertTexture(transform, templateSprite, fluidSprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 2, luminosity));
+                // Fluid layer
+                var transformedState = new SimpleModelState(modelState.getRotation().compose(FLUID_TRANSFORM), modelState.isUvLocked());
+                var unbaked = UnbakedGeometryHelper.createUnbakedItemMaskElements(2, templateSprite); // Use template as mask
+                var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> fluidSprite, transformedState, modelLocation); // Bake with fluid texture
+
+                var unlit = fluid.getFluidType().getLightLevel() > 0;
+                var renderTypes = getLayerRenderTypes();
+                if (unlit) {
+                    MAX_LIGHTMAP_TRANSFORMER.processInPlace(quads);
+                }
+                modelBuilder.addQuads(renderTypes, quads);
             }
         }
-        builder.setParticle(particleSprite);
-        return builder.build();
+        modelBuilder.setParticle(particleSprite);
+        return modelBuilder.build();
     }
 
     @Override
@@ -161,19 +174,19 @@ public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidRese
         return texs;
     }
 
+    public static RenderTypeGroup getLayerRenderTypes() {
+
+        return new RenderTypeGroup(RenderType.cutout(), ForgeRenderTypes.ITEM_LAYERED_CUTOUT.get());
+    }
+
     public static class Loader implements IGeometryLoader<FluidReservoirItemModel> {
 
         @Override
-        public void onResourceManagerReload(ResourceManager resourceManager) {
-            // no need to clear cache since we create a new model instance
-        }
-
-        @Override
-        public FluidReservoirItemModel read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
+        public FluidReservoirItemModel read(JsonObject jsonObject, JsonDeserializationContext deserializationContext) {
 
             FluidStack stack = FluidStack.EMPTY;
-            if (modelContents.has("fluid")) {
-                ResourceLocation fluidName = new ResourceLocation(modelContents.get("fluid").getAsString());
+            if (jsonObject.has("fluid")) {
+                ResourceLocation fluidName = new ResourceLocation(jsonObject.get("fluid").getAsString());
                 Fluid fluid = ForgeRegistries.FLUIDS.getValue(fluidName);
                 if (fluid != null) {
                     stack = new FluidStack(fluid, BUCKET_VOLUME);
@@ -212,7 +225,7 @@ public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidRese
             List<Integer> fluidHash = Arrays.asList(mode + (active ? 2 : 0) + (color ? 4 : 0), FluidHelper.fluidHashcode(fluidStack));
             if (!cache.containsKey(fluidHash)) {
                 FluidReservoirItemModel unbaked = this.parent.withProperties(fluidStack, mode, active, color);
-                BakedModel bakedModel = unbaked.bake(owner, bakery, ForgeModelBakery.defaultTextureGetter(), BlockModelRotation.X0_Y0, this, new ResourceLocation(ID_THERMAL_INNOVATION, "reservoir_override"));
+                BakedModel bakedModel = unbaked.bake(owner, bakery, Material::sprite, BlockModelRotation.X0_Y0, this, new ResourceLocation(ID_THERMAL_INNOVATION, "reservoir_override"));
                 cache.put(fluidHash, bakedModel);
                 return bakedModel;
             }

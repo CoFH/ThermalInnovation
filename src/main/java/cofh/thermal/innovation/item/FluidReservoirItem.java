@@ -4,6 +4,7 @@ import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
+import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
@@ -236,6 +237,8 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         if (colorIndex == 1) {
             CompoundTag nbt = item.getTagElement("display");
             return nbt != null && nbt.contains("color", 99) ? nbt.getInt("color") : 0xFFFFFF;
+        } else if (colorIndex == 2) {
+            return getFluidAmount(item) > 0 ? FluidHelper.color(getFluid(item)) : 0xFFFFFF;
         }
         return 0xFFFFFF;
     }
