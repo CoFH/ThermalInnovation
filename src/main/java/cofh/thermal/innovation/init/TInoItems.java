@@ -42,6 +42,7 @@ public class TInoItems {
         // registerItem(ID_FLUX_PUMP, () -> new RFPumpItem(new Item.Properties().maxStackSize(1).group(group), energy, xfer).setModId(ID_THERMAL_INNOVATION));
         registerItem(ID_FLUX_CAPACITOR, () -> new RFCapacitorItem(new Item.Properties().stacksTo(1).tab(group), energy * 10, xfer).setModId(ID_THERMAL_INNOVATION));
         registerItem(ID_FLUX_MAGNET, () -> new RFMagnetItem(new Item.Properties().stacksTo(1).tab(group), energy, xfer).setModId(ID_THERMAL_INNOVATION));
+        registerItem(ID_FLUX_GRAPPLE, () -> new RFGrappleItem(new Item.Properties().stacksTo(1).tab(group), energy, xfer).setModId(ID_THERMAL_INNOVATION));
 
         registerItem(ID_FLUID_RESERVOIR, () -> new FluidReservoirItem(new Item.Properties().stacksTo(1).tab(group), fluid * 4).setModId(ID_THERMAL_INNOVATION));
 
