@@ -1,10 +1,10 @@
 package cofh.thermal.innovation.item;
 
 import cofh.core.compat.curios.CuriosProxy;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;

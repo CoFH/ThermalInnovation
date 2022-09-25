@@ -1,14 +1,14 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.capability.CapabilityArchery;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.capability.CapabilityArchery;
-import cofh.lib.capability.IArcheryAmmoItem;
+import cofh.lib.api.capability.IArcheryAmmoItem;
+import cofh.lib.api.item.IColorableItem;
+import cofh.lib.api.item.IFluidContainerItem;
 import cofh.lib.fluid.FluidContainerItemWrapper;
-import cofh.lib.fluid.IFluidContainerItem;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
@@ -40,13 +40,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static cofh.lib.item.ContainerType.ITEM;
+import static cofh.core.util.helpers.ArcheryHelper.findArrows;
+import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
+import static cofh.core.util.helpers.ItemHelper.areItemStacksEqualIgnoreTags;
+import static cofh.lib.api.ContainerType.ITEM;
 import static cofh.lib.util.Utils.getItemEnchantmentLevel;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.ArcheryHelper.findArrows;
-import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
-import static cofh.lib.util.helpers.ItemHelper.areItemStacksEqualIgnoreTags;
 import static cofh.lib.util.helpers.StringHelper.*;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;

@@ -3,7 +3,7 @@ package cofh.thermal.innovation.init;
 import cofh.thermal.innovation.item.*;
 import net.minecraftforge.registries.ObjectHolder;
 
-import static cofh.lib.util.constants.Constants.ID_THERMAL;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL;
 import static cofh.thermal.innovation.init.TInoIDs.*;
 
 @ObjectHolder (ID_THERMAL)

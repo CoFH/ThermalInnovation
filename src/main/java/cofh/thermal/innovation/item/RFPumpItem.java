@@ -1,13 +1,13 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.capability.CapabilityAreaEffect;
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
+import cofh.core.util.helpers.AreaEffectHelper;
 import cofh.core.util.helpers.ChatHelper;
-import cofh.lib.capability.CapabilityAreaEffect;
-import cofh.lib.capability.IAreaEffect;
+import cofh.lib.api.capability.IAreaEffectItem;
+import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.energy.EnergyContainerItemWrapper;
-import cofh.lib.energy.IEnergyContainerItem;
-import cofh.lib.item.IMultiModeItem;
-import cofh.lib.util.helpers.AreaEffectHelper;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
 import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
@@ -36,9 +36,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.getPropertyWithDefault;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
 public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem {
@@ -154,9 +154,9 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
     // endregion
 
     // region CAPABILITY WRAPPER
-    protected class RFPumpItemWrapper extends EnergyContainerItemWrapper implements IAreaEffect {
+    protected class RFPumpItemWrapper extends EnergyContainerItemWrapper implements IAreaEffectItem {
 
-        private final LazyOptional<IAreaEffect> holder = LazyOptional.of(() -> this);
+        private final LazyOptional<IAreaEffectItem> holder = LazyOptional.of(() -> this);
 
         RFPumpItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
 

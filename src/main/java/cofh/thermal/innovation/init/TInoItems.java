@@ -4,7 +4,7 @@ import cofh.thermal.innovation.item.*;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 
-import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.util.RegistrationHelper.registerItem;
 import static cofh.thermal.innovation.init.TInoIDs.*;
 import static cofh.thermal.lib.common.ThermalItemGroups.THERMAL_TOOLS;

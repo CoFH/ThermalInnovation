@@ -1,8 +1,8 @@
 package cofh.thermal.innovation.client.model;
 
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.item.ICoFHItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.ICoFHItem;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
@@ -34,8 +34,8 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static cofh.lib.util.constants.Constants.BUCKET_VOLUME;
-import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
+import static cofh.lib.util.Constants.BUCKET_VOLUME;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
 public final class FluidReservoirItemModel implements IModelGeometry<FluidReservoirItemModel> {
 

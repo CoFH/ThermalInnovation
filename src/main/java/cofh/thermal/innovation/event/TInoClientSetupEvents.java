@@ -8,8 +8,8 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-import static cofh.lib.util.constants.Constants.ID_THERMAL;
-import static cofh.lib.util.constants.Constants.ID_THERMAL_INNOVATION;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL;
+import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
 @Mod.EventBusSubscriber (value = Dist.CLIENT, modid = ID_THERMAL_INNOVATION, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TInoClientSetupEvents {

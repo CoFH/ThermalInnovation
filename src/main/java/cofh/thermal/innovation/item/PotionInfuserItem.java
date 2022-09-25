@@ -1,10 +1,10 @@
 package cofh.thermal.innovation.item;
 
+import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
-import cofh.lib.item.IColorableItem;
-import cofh.lib.item.IMultiModeItem;
+import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
 import cofh.thermal.lib.item.FluidContainerItemAugmentable;
@@ -36,8 +36,8 @@ import java.util.function.BiPredicate;
 import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 
+import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
