@@ -1,9 +1,15 @@
 package cofh.thermal.innovation.config;
 
-import cofh.lib.config.IBaseConfig;
+import cofh.core.config.IBaseConfig;
+import cofh.core.item.EnergyContainerItem;
+import cofh.core.item.FluidContainerItem;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import static cofh.thermal.innovation.init.TInoReferences.*;
+import java.util.function.Supplier;
+
+import static cofh.thermal.core.ThermalCore.ITEMS;
+import static cofh.thermal.innovation.init.TInoIDs.*;
 
 public class TInoToolConfig implements IBaseConfig {
 
@@ -74,25 +80,38 @@ public class TInoToolConfig implements IBaseConfig {
     @Override
     public void refresh() {
 
-        if (FLUX_DRILL_ITEM == null) {
-            return;
+        setMaxEnergy(ID_FLUX_DRILL, rfDrillMaxEnergy.get());
+        setMaxEnergy(ID_FLUX_SAW, rfSawMaxEnergy.get());
+        setMaxEnergy(ID_FLUX_CAPACITOR, rfCapacitorMaxEnergy.get());
+        setMaxEnergy(ID_FLUX_MAGNET, rfMagnetMaxEnergy.get());
+        setFluidCapacity(ID_FLUID_RESERVOIR, fluidReservoirCapacity.get());
+        setFluidCapacity(ID_POTION_INFUSER, potionInfuserCapacity.get());
+        setFluidCapacity(ID_POTION_QUIVER, potionQuiverCapacity.get());
+    }
+
+    private void setMaxEnergy(String id, int energy) {
+
+        Item item = ITEMS.get(id);
+        if (item instanceof EnergyContainerItem ec) {
+            ec.setMaxEnergy(energy);
         }
-        FLUX_DRILL_ITEM.setMaxEnergy(rfDrillMaxEnergy.get());
-        FLUX_SAW_ITEM.setMaxEnergy(rfSawMaxEnergy.get());
-        FLUX_CAPACITOR_ITEM.setMaxEnergy(rfCapacitorMaxEnergy.get());
-        FLUX_MAGNET_ITEM.setMaxEnergy(rfMagnetMaxEnergy.get());
-        FLUID_RESERVOIR_ITEM.setFluidCapacity(fluidReservoirCapacity.get());
-        POTION_INFUSER_ITEM.setFluidCapacity(potionInfuserCapacity.get());
-        POTION_QUIVER_ITEM.setFluidCapacity(potionQuiverCapacity.get());
+    }
+
+    private void setFluidCapacity(String id, int capacity) {
+
+        Item item = ITEMS.get(id);
+        if (item instanceof FluidContainerItem fc) {
+            fc.setFluidCapacity(capacity);
+        }
     }
 
     // region CONFIG VARIABLES
-    private ForgeConfigSpec.IntValue rfDrillMaxEnergy;
-    private ForgeConfigSpec.IntValue rfSawMaxEnergy;
-    private ForgeConfigSpec.IntValue rfCapacitorMaxEnergy;
-    private ForgeConfigSpec.IntValue rfMagnetMaxEnergy;
-    private ForgeConfigSpec.IntValue fluidReservoirCapacity;
-    private ForgeConfigSpec.IntValue potionInfuserCapacity;
-    private ForgeConfigSpec.IntValue potionQuiverCapacity;
+    private Supplier<Integer> rfDrillMaxEnergy;
+    private Supplier<Integer> rfSawMaxEnergy;
+    private Supplier<Integer> rfCapacitorMaxEnergy;
+    private Supplier<Integer> rfMagnetMaxEnergy;
+    private Supplier<Integer> fluidReservoirCapacity;
+    private Supplier<Integer> potionInfuserCapacity;
+    private Supplier<Integer> potionQuiverCapacity;
     // endregion
 }
