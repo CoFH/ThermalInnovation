@@ -38,7 +38,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -160,7 +159,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         }
         if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
             if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack)) {
-                NetworkHooks.openGui((ServerPlayer) player, getFilter(stack));
+                FilterHelper.openHeldGui((ServerPlayer) player, getFilter(stack));
                 return true;
             }
             return false;
