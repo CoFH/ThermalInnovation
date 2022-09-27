@@ -202,7 +202,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             }
             player.swing(hand);
             stack.setPopTime(5);
-            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 1.0F);
+            player.level.playSound(null, player.blockPosition(), SOUND_MAGNET.get(), SoundSource.PLAYERS, 0.4F, 1.0F);
         }
         return true;
     }
@@ -272,7 +272,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     @Override
     public void onModeChange(Player player, ItemStack stack) {
 
-        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET, SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
+        player.level.playSound(null, player.blockPosition(), SOUND_MAGNET.get(), SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
         ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion
