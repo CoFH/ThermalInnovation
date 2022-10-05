@@ -10,7 +10,7 @@
       "item": "minecraft:glass_bottle"
     },
     "C": {
-      "tag": "forge:ingots/copper"
+      "tag": "forge:ingots/bronze"
     },
     "G": {
       "tag": "forge:gears/silver"

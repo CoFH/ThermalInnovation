@@ -85,7 +85,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUID_RESERVOIR))
                 .define('B', Items.BUCKET)
-                .define('C', Tags.Items.INGOTS_COPPER)
+                .define('C', ItemTagsCoFH.INGOTS_BRONZE)
                 .define('G', Tags.Items.GLASS)
                 .define('P', redstoneServo)
                 .define('R', reg.get("cured_rubber"))
@@ -97,7 +97,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_INFUSER))
                 .define('B', Items.GLASS_BOTTLE)
-                .define('C', Tags.Items.INGOTS_COPPER)
+                .define('C', ItemTagsCoFH.INGOTS_BRONZE)
                 .define('G', ItemTagsCoFH.GEARS_SILVER)
                 .define('R', reg.get("cured_rubber"))
                 .pattern("RBR")
@@ -108,7 +108,7 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
 
         ShapedRecipeBuilder.shaped(reg.get(ID_POTION_QUIVER))
                 .define('B', Items.GLASS_BOTTLE)
-                .define('C', Tags.Items.INGOTS_COPPER)
+                .define('C', ItemTagsCoFH.INGOTS_BRONZE)
                 .define('G', ItemTagsCoFH.GEARS_SILVER)
                 .define('S', Tags.Items.STRING)
                 .define('R', reg.get("cured_rubber"))
