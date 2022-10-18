@@ -1,0 +1,6 @@
+{
+  "parent": "thermal:item/flux_grapple",
+  "textures": {
+    "layer2": "thermal:item/flux_grapple_charged"
+  }
+}
