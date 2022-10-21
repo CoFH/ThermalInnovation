@@ -127,7 +127,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                     continue;
                 }
                 if (item.position().distanceToSqr(player.position()) <= radSq) {
-                    worldIn.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
+                    worldIn.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY() + item.getBbHeight(), item.getZ(), 0, 0, 0);
                 }
             }
         } else {
@@ -180,7 +180,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             if (Utils.isClientWorld(world)) {
                 for (ItemEntity item : items) {
                     if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
-                        world.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY(), item.getZ(), 0, 0, 0);
+                        world.addParticle(DustParticleOptions.REDSTONE, item.getX(), item.getY() + item.getBbHeight(), item.getZ(), 0, 0, 0);
                     }
                 }
             } else {
