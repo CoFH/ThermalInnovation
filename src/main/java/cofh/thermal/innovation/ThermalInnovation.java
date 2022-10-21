@@ -12,7 +12,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.ThermalCore.CONFIG_MANAGER;
 import static cofh.thermal.lib.common.ThermalFlags.*;
-import static cofh.thermal.lib.common.ThermalIDs.*;
+import static cofh.thermal.lib.common.ThermalIDs.ID_CHARGE_BENCH;
+import static cofh.thermal.lib.common.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
 
 @Mod (ID_THERMAL_INNOVATION)
 public class ThermalInnovation {
@@ -46,7 +47,6 @@ public class ThermalInnovation {
         setFlag(FLAG_ELEMENTAL_EXPLOSIVES, true);
 
         setFlag(ID_DEVICE_POTION_DIFFUSER, true);
-        setFlag(ID_DEVICE_MAGNET_BLOCKER, true);
         setFlag(ID_CHARGE_BENCH, true);
     }
 
