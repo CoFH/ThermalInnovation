@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -158,8 +159,8 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             return false;
         }
         if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
-            if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack)) {
-                FilterHelper.openHeldGui((ServerPlayer) player, getFilter(stack));
+            if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack) && getFilter(stack) instanceof MenuProvider filter) {
+                FilterHelper.openHeldGui((ServerPlayer) player, filter);
                 return true;
             }
             return false;
