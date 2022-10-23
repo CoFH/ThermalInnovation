@@ -63,8 +63,8 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_GRAPPLE))
-                .define('C', CoFHTags.Items.GEARS_GOLD)
-                .define('G', CoFHTags.Items.GEARS_TIN)
+                .define('C', ItemTagsCoFH.GEARS_GOLD)
+                .define('G', ItemTagsCoFH.GEARS_TIN)
                 .define('I', Tags.Items.INGOTS_IRON)
                 .define('P', rfCoil)
                 .define('X', reg.get("grapple_hook"))

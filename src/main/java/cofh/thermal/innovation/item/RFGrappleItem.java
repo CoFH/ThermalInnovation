@@ -12,7 +12,6 @@ import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,8 +30,8 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nullable;
 import java.util.List;
 
+import static cofh.core.util.helpers.AugmentableHelper.*;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.lib.util.helpers.AugmentableHelper.*;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 
@@ -71,7 +70,8 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements ICo
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
 
-        return useDelegate(stack, context.getPlayer(), context.getHand()).getResult();
+        //return useDelegate(stack, context.getPlayer(), context.getHand()).getResult();
+        return super.onItemUseFirst(stack, context);
     }
 
     @Override
@@ -86,54 +86,62 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements ICo
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int itemSlot, boolean isSelected) {
 
-        if (level.isClientSide || !(entity instanceof Player) || Utils.isFakePlayer(entity)) {
-            return;
-        }
-        CompoundTag tag = stack.getOrCreateTag();
-        if (tag.contains(TAG_HOOK)) {
-            Entity hook = level.getEntity(tag.getInt(TAG_HOOK));
-            float range = getReach(stack);
-            float r2 = range * range * 1.1F;
-            if (!(hook instanceof GrappleHook && hook.isAlive() && hook.distanceToSqr(entity) < r2)) {
-                if (hook != null) {
-                    hook.discard();
-                }
-                tag.remove(TAG_HOOK);
-            } else if (Utils.timeCheckQuarter() && !Utils.isCreativePlayer(entity)) {
-                extractEnergy(stack, ENERGY_PER_USE, false);
-            }
-        }
+        //if (level.isClientSide || !(entity instanceof Player) || Utils.isFakePlayer(entity)) {
+        //    return;
+        //}
+        //CompoundTag tag = stack.getOrCreateTag();
+        //if (tag.contains(TAG_HOOK)) {
+        //    Entity hook = level.getEntity(tag.getInt(TAG_HOOK));
+        //    System.out.println(tag + " " + hook);
+        //    float range = getReach(stack);
+        //    float r2 = range * range * 1.1F;
+        //    if (!(hook instanceof GrappleHook && hook.isAlive() && hook.distanceToSqr(entity) < r2)) {
+        //        if (hook != null) {
+        //            hook.discard();
+        //        }
+        //        tag.remove(TAG_HOOK);
+        //    } else if (Utils.timeCheckQuarter() && !Utils.isCreativePlayer(entity)) {
+        //        extractEnergy(stack, ENERGY_PER_USE, false);
+        //    }
+        //}
     }
 
     // region HELPERS
     protected InteractionResultHolder<ItemStack> useDelegate(ItemStack stack, Player player, InteractionHand hand) {
 
-        if (Utils.isFakePlayer(player)) {
-            return InteractionResultHolder.pass(stack);
-        }
+        //if (Utils.isFakePlayer(player)) {
+        //    return InteractionResultHolder.pass(stack);
+        //}
+        //Level level = player.level;
+        //CompoundTag tag = stack.getOrCreateTag();
+        //if (tag.contains(TAG_HOOK)) {
+        //    Entity entity = level.getEntity(tag.getInt(TAG_HOOK));
+        //    if (entity instanceof GrappleHook) {
+        //        if (getMode(stack) <= 0) {
+        //            player.startUsingItem(hand);
+        //        } else {
+        //            entity.discard();
+        //        }
+        //    } else {
+        //        tag.remove(TAG_HOOK);
+        //    }
+        //} else if (Utils.isCreativePlayer(player) || extractEnergy(stack, ENERGY_PER_USE, false) == ENERGY_PER_USE) {
+        //    if (!level.isClientSide) {
+        //        GrappleHook hook = new GrappleHook(level, player);
+        //        hook.shoot(player.getLookAngle().scale(getShootSpeed(stack)));
+        //        level.addFreshEntity(hook);
+        //        tag.putInt(TAG_HOOK, hook.getId());
+        //    }
+        //} else {
+        //    return InteractionResultHolder.pass(stack);
+        //}
+
         Level level = player.level;
-        CompoundTag tag = stack.getOrCreateTag();
-        if (tag.contains(TAG_HOOK)) {
-            Entity entity = level.getEntity(tag.getInt(TAG_HOOK));
-            if (entity instanceof GrappleHook) {
-                if (getMode(stack) <= 0) {
-                    player.startUsingItem(hand);
-                } else {
-                    entity.discard();
-                }
-            } else {
-                tag.remove(TAG_HOOK);
-            }
-        } else {
-            if (Utils.isCreativePlayer(player) || extractEnergy(stack, ENERGY_PER_USE, false) == ENERGY_PER_USE) {
-                GrappleHook hook = new GrappleHook(level, player);
-                hook.shoot(player.getLookAngle().scale(getShootSpeed(stack)));
-                level.addFreshEntity(hook);
-            } else {
-                return InteractionResultHolder.pass(stack);
-            }
+        if (!level.isClientSide) {
+            level.addFreshEntity(new GrappleHook(level, player, player.getLookAngle().scale(getShootSpeed(stack))));
+            //tag.putInt(TAG_HOOK, hook.getId());
         }
-        return InteractionResultHolder.consume(stack);
+        return InteractionResultHolder.success(stack);
     }
 
      public float getReach(ItemStack stack) {
@@ -170,7 +178,7 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements ICo
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, new TranslatableComponent("info.thermal.grapple.mode." + getMode(stack)));
+        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.grapple.mode." + getMode(stack)));
     }
     // endregion
 }

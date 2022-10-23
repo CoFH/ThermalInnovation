@@ -2,6 +2,7 @@ package cofh.thermal.innovation.client.renderer;
 
 import cofh.core.entity.Knife;
 import cofh.core.util.helpers.RenderHelper;
+import cofh.core.util.helpers.vfx.VFXHelper;
 import cofh.lib.util.helpers.MathHelper;
 import cofh.thermal.innovation.entity.GrappleHook;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -29,6 +30,7 @@ public class GrappleHookRenderer extends EntityRenderer<GrappleHook> {
     @Override
     public void render(GrappleHook hook, float entityYaw, float partialTicks, PoseStack stack, MultiBufferSource buffer, int packedLight) {
 
+        VFXHelper.renderTest(stack);
         stack.pushPose();
         stack.mulPose(Vector3f.YP.rotationDegrees(MathHelper.interpolate(partialTicks, hook.yRotO, hook.yRot) - 90.0F));
         stack.mulPose(Vector3f.ZP.rotationDegrees(MathHelper.interpolate(partialTicks, hook.xRotO, hook.xRot)));

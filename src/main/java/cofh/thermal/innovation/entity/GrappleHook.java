@@ -2,7 +2,6 @@ package cofh.thermal.innovation.entity;
 
 import cofh.core.util.helpers.ArcheryHelper;
 import cofh.lib.util.helpers.MathHelper;
-import cofh.thermal.innovation.init.TInoReferences;
 import cofh.thermal.innovation.item.RFGrappleItem;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.Packet;
@@ -51,21 +50,19 @@ public class GrappleHook extends Projectile {
         super(type, level);
     }
 
-    public GrappleHook(Level level, Player owner) {
+    public GrappleHook(Level level, Player owner, Vec3 velocity) {
 
         super(GRAPPLE_HOOK.get(), level);
         setOwner(owner);
         this.player = owner;
-        this.length = this.position().distanceTo(getMidPos(owner));
-    }
-
-    public void shoot(Vec3 velocity) {
-
+        this.setOldPosAndRot();
+        this.setPos(player.getEyePosition());
         this.setDeltaMovement(velocity);
-        this.setYRot((float) (Mth.atan2(velocity.x, velocity.z) * MathHelper.TO_DEG));
-        this.setXRot((float) (Mth.atan2(velocity.y, velocity.horizontalDistance()) * MathHelper.TO_DEG));
+        this.setYRot((float) (Mth.atan2(velocity.x, velocity.z) * -MathHelper.TO_DEG));
+        this.setXRot((float) (Mth.atan2(velocity.y, velocity.horizontalDistance()) * -MathHelper.TO_DEG));
         this.yRotO = this.getYRot();
         this.xRotO = this.getXRot();
+        //this.length = this.position().distanceTo(getMidPos(owner));
     }
 
     public ItemStack renderItem() {
@@ -104,6 +101,9 @@ public class GrappleHook extends Projectile {
     @Override
     public void tick() {
 
+        if (level.isClientSide) {
+            return;
+        }
         Player owner = player;
         if (owner == null || !owner.isAlive()) {
             discard();
