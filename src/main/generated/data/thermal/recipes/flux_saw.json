@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    " X ",
-    "ICI",
-    "GPG"
-  ],
   "key": {
     "C": {
       "tag": "forge:gears/gold"
@@ -22,6 +17,11 @@
       "item": "thermal:saw_blade"
     }
   },
+  "pattern": [
+    " X ",
+    "ICI",
+    "GPG"
+  ],
   "result": {
     "item": "thermal:flux_saw"
   }

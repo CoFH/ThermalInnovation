@@ -39,6 +39,7 @@ public class ThermalInnovation {
         setFlag(FLAG_DIVING_ARMOR, true);
         setFlag(FLAG_HAZMAT_ARMOR, true);
 
+        setFlag(FLAG_AREA_AUGMENTS, true);
         setFlag(FLAG_POTION_AUGMENTS, true);
 
         setFlag(FLAG_TOOL_COMPONENTS, true);

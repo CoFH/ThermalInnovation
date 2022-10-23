@@ -39,8 +39,10 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 import static cofh.lib.util.Constants.BUCKET_VOLUME;
+import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_FLUID;
+import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_UPGRADE;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
-import static cofh.thermal.lib.common.ThermalAugmentRules.FLUID_STORAGE_VALIDATOR;
+import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
@@ -56,7 +58,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalCoreConfig.storageAugments;
-        augValidator = FLUID_STORAGE_VALIDATOR;
+        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_FLUID);
     }
 
     @Override

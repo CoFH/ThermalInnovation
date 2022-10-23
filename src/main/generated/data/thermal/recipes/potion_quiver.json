@@ -1,10 +1,5 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "C C",
-    "BGS",
-    "RCR"
-  ],
   "key": {
     "B": {
       "item": "minecraft:glass_bottle"
@@ -15,13 +10,18 @@
     "G": {
       "tag": "forge:gears/silver"
     },
-    "S": {
-      "tag": "forge:string"
-    },
     "R": {
       "item": "thermal:cured_rubber"
+    },
+    "S": {
+      "tag": "forge:string"
     }
   },
+  "pattern": [
+    "C C",
+    "BGS",
+    "RCR"
+  ],
   "result": {
     "item": "thermal:potion_quiver"
   }
