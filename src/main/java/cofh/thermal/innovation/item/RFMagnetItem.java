@@ -160,7 +160,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         }
         if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
             if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack) && getFilter(stack) instanceof MenuProvider filter) {
-                FilterHelper.openHeldGui((ServerPlayer) player, filter);
+                FilterHelper.openHeldScreen((ServerPlayer) player, filter);
                 return true;
             }
             return false;
