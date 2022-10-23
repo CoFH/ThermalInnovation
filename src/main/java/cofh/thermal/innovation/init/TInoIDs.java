@@ -11,6 +11,7 @@ public class TInoIDs {
     public static final String ID_FLUX_PUMP = "flux_pump";
     public static final String ID_FLUX_CAPACITOR = "flux_capacitor";
     public static final String ID_FLUX_MAGNET = "flux_magnet";
+    public static final String ID_FLUX_GRAPPLE = "flux_grapple";
 
     public static final String ID_FLUID_RESERVOIR = "fluid_reservoir";
 
