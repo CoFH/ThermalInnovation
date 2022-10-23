@@ -1,6 +1,6 @@
 package cofh.thermal.innovation;
 
-import cofh.thermal.innovation.client.renderer.GrappleHookRenderer;
+//import cofh.thermal.innovation.client.renderer.GrappleHookRenderer;
 import cofh.thermal.innovation.config.TInoToolConfig;
 import cofh.thermal.innovation.init.TInoBlocks;
 import cofh.thermal.innovation.init.TInoEntities;
@@ -14,7 +14,6 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.ThermalCore.CONFIG_MANAGER;
-import static cofh.thermal.innovation.init.TInoEntities.GRAPPLE_HOOK;
 import static cofh.thermal.lib.common.ThermalFlags.*;
 import static cofh.thermal.lib.common.ThermalIDs.ID_CHARGE_BENCH;
 import static cofh.thermal.lib.common.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
@@ -69,7 +68,7 @@ public class ThermalInnovation {
 
     private void entityRendererSetup(final EntityRenderersEvent.RegisterRenderers event) {
 
-        event.registerEntityRenderer(GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
+        //event.registerEntityRenderer(GRAPPLE_HOOK.get(), GrappleHookRenderer::new);
     }
     // endregion
 }
