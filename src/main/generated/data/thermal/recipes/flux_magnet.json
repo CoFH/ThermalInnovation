@@ -1,16 +1,11 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "IRI",
-    "LIL",
-    " P "
-  ],
   "key": {
-    "L": {
-      "tag": "forge:ingots/lead"
-    },
     "I": {
       "tag": "forge:ingots/iron"
+    },
+    "L": {
+      "tag": "forge:ingots/lead"
     },
     "P": {
       "item": "thermal:rf_coil"
@@ -19,6 +14,11 @@
       "tag": "forge:dusts/redstone"
     }
   },
+  "pattern": [
+    "IRI",
+    "LIL",
+    " P "
+  ],
   "result": {
     "item": "thermal:flux_magnet"
   }
