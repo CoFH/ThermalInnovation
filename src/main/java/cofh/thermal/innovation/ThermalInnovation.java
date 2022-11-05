@@ -1,6 +1,7 @@
 package cofh.thermal.innovation;
 
 //import cofh.thermal.innovation.client.renderer.GrappleHookRenderer;
+
 import cofh.thermal.innovation.config.TInoToolConfig;
 import cofh.thermal.innovation.init.TInoBlocks;
 import cofh.thermal.innovation.init.TInoEntities;

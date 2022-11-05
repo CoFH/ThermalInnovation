@@ -8,7 +8,6 @@ package cofh.thermal.innovation.init;
 //import static cofh.thermal.core.ThermalCore.ENTITIES;
 //import static cofh.thermal.innovation.init.TInoIDs.ID_FLUX_GRAPPLE;
 
-
 public class TInoEntities {
 
     private TInoEntities() {
