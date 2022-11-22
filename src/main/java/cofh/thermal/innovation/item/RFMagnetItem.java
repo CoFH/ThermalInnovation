@@ -6,7 +6,6 @@ import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
 import cofh.core.util.filter.IFilter;
 import cofh.core.util.filter.IFilterableItem;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FilterHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
@@ -273,7 +272,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SOUND_MAGNET.get(), SoundSource.PLAYERS, 0.4F, 0.8F + 0.4F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.magnet.mode." + getMode(stack)));
+        ProxyUtils.setOverlayMessage(player, Component.translatable("info.thermal.magnet.mode." + getMode(stack)));
     }
     // endregion
 }

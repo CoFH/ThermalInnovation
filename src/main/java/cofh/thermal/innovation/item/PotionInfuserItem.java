@@ -2,7 +2,6 @@ package cofh.thermal.innovation.item;
 
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
@@ -239,7 +238,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.infuser.mode." + getMode(stack)));
+        ProxyUtils.setOverlayMessage(player, Component.translatable("info.thermal.infuser.mode." + getMode(stack)));
     }
     // endregion
 }

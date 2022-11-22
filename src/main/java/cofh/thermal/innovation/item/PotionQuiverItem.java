@@ -3,7 +3,6 @@ package cofh.thermal.innovation.item;
 import cofh.core.capability.CapabilityArchery;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.capability.IArcheryAmmoItem;
 import cofh.lib.api.item.IColorableItem;
@@ -241,7 +240,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.4F, 0.6F + 0.2F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.quiver.mode." + getMode(stack)));
+        ProxyUtils.setOverlayMessage(player, Component.translatable("info.thermal.quiver.mode." + getMode(stack)));
     }
     // endregion
 

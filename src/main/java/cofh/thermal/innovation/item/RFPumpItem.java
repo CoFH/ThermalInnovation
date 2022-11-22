@@ -4,7 +4,6 @@ import cofh.core.capability.CapabilityAreaEffect;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.AreaEffectHelper;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.api.capability.IAreaEffectItem;
 import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.energy.EnergyContainerItemWrapper;
@@ -145,9 +144,9 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
         player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, 1.0F - 0.1F * getMode(stack));
         int radius = getMode(stack) * 2 + 1;
         if (radius <= 1) {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.cofh.single_block"));
+            ProxyUtils.setOverlayMessage(player, Component.translatable("info.cofh.single_block"));
         } else {
-            ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.cofh.area").append(": " + radius + "x" + radius));
+            ProxyUtils.setOverlayMessage(player, Component.translatable("info.cofh.area").append(": " + radius + "x" + radius));
         }
     }
     // endregion

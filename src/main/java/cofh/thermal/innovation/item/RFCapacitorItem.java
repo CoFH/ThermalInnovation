@@ -3,7 +3,6 @@ package cofh.thermal.innovation.item;
 import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.config.ThermalCoreConfig;
@@ -144,7 +143,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), SoundEvents.LEVER_CLICK, SoundSource.PLAYERS, 0.4F, (isActive(stack) ? 0.7F : 0.5F) + 0.1F * getMode(stack));
-        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.capacitor.mode." + getMode(stack)));
+        ProxyUtils.setOverlayMessage(player, Component.translatable("info.thermal.capacitor.mode." + getMode(stack)));
     }
     // endregion
 }

@@ -3,7 +3,6 @@ package cofh.thermal.innovation.item;
 import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
-import cofh.core.util.helpers.ChatHelper;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
@@ -228,7 +227,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
     public void onModeChange(Player player, ItemStack stack) {
 
         player.level.playSound(null, player.blockPosition(), getMode(stack) == FILL ? SoundEvents.BOTTLE_FILL : SoundEvents.BOTTLE_EMPTY, SoundSource.PLAYERS, 0.6F, 1.0F);
-        ChatHelper.sendIndexedChatMessageToPlayer(player, Component.translatable("info.thermal.reservoir.mode." + getMode(stack)));
+        ProxyUtils.setOverlayMessage(player, Component.translatable("info.thermal.reservoir.mode." + getMode(stack)));
     }
     // endregion
 
