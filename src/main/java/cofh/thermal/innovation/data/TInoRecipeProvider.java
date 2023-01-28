@@ -62,17 +62,17 @@ public class TInoRecipeProvider extends RecipeProviderCoFH {
                 .unlockedBy("has_rf_coil", has(rfCoil))
                 .save(consumer);
 
-        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_GRAPPLE))
-                .define('C', ItemTagsCoFH.GEARS_GOLD)
-                .define('G', ItemTagsCoFH.GEARS_TIN)
-                .define('I', Tags.Items.INGOTS_IRON)
-                .define('P', rfCoil)
-                .define('X', reg.get("grapple_hook"))
-                .pattern(" X ")
-                .pattern("ICI")
-                .pattern("GPG")
-                .unlockedBy("has_rf_coil", has(rfCoil))
-                .save(consumer);
+        //        ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_GRAPPLE))
+        //                .define('C', ItemTagsCoFH.GEARS_GOLD)
+        //                .define('G', ItemTagsCoFH.GEARS_TIN)
+        //                .define('I', Tags.Items.INGOTS_IRON)
+        //                .define('P', rfCoil)
+        //                .define('X', reg.get("grapple_hook"))
+        //                .pattern(" X ")
+        //                .pattern("ICI")
+        //                .pattern("GPG")
+        //                .unlockedBy("has_rf_coil", has(rfCoil))
+        //                .save(consumer);
 
         ShapedRecipeBuilder.shaped(reg.get(ID_FLUX_CAPACITOR))
                 .define('L', ItemTagsCoFH.INGOTS_LEAD)
