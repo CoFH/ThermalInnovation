@@ -56,6 +56,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
@@ -156,9 +157,18 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     }
 
     @Override
+    public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, T entity, Consumer<T> onBroken) {
+
+        if (entity instanceof Player player && !player.abilities.instabuild) {
+            extractEnergy(stack, getEnergyPerUse(stack), false);
+        }
+        return 0;
+    }
+
+    @Override
     public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
 
-        if (attacker instanceof Player && !((Player) attacker).abilities.instabuild) {
+        if (attacker instanceof Player player && !player.abilities.instabuild) {
             extractEnergy(stack, getEnergyPerUse(stack) * 2, false);
         }
         return true;
@@ -168,7 +178,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     public boolean mineBlock(ItemStack stack, Level worldIn, BlockState state, BlockPos pos, LivingEntity entityLiving) {
 
         if (Utils.isServerWorld(worldIn) && state.getDestroySpeed(worldIn, pos) != 0.0F) {
-            if (entityLiving instanceof Player && !((Player) entityLiving).abilities.instabuild) {
+            if (entityLiving instanceof Player player && !player.abilities.instabuild) {
                 extractEnergy(stack, getEnergyPerUse(stack), false);
             }
         }
