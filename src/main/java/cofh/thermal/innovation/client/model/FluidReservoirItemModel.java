@@ -28,6 +28,7 @@ import net.minecraftforge.client.RenderTypeGroup;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.client.model.CompositeModel;
 import net.minecraftforge.client.model.IQuadTransformer;
+import net.minecraftforge.client.model.QuadTransformers;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.client.model.geometry.*;
 import net.minecraftforge.fluids.FluidStack;
@@ -47,7 +48,7 @@ public final class FluidReservoirItemModel implements IUnbakedGeometry<FluidRese
     private static final Transformation FLUID_TRANSFORM = new Transformation(Vector3f.ZERO, Quaternion.ONE, new Vector3f(1, 1, 1.002f), Quaternion.ONE);
     private static final Transformation COVER_TRANSFORM = new Transformation(Vector3f.ZERO, Quaternion.ONE, new Vector3f(1, 1, 1.004f), Quaternion.ONE);
     // Transformer to set quads to max brightness
-    private static final IQuadTransformer MAX_LIGHTMAP_TRANSFORMER = IQuadTransformer.applyingLightmap(0x00F000F0);
+    private static final IQuadTransformer MAX_LIGHTMAP_TRANSFORMER = QuadTransformers.applyingLightmap(0x00F000F0);
 
     @Nonnull
     private final FluidStack fluidStack;

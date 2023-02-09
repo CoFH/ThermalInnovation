@@ -84,9 +84,9 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         tooltip.add(getTextComponent("info.thermal.quiver.mode." + getMode(stack)).withStyle(ChatFormatting.ITALIC));
         addModeChangeTooltip(this, stack, worldIn, tooltip, flagIn);
 
-        tooltip.add(getTextComponent(localize("info.cofh.arrows") + ": " + (isCreative(stack, ITEM)
-                ? localize("info.cofh.infinite")
-                : getStoredArrows(stack) + " / " + format(getMaxArrows(stack)))));
+        tooltip.add(isCreative(stack, ITEM)
+                ? getTextComponent(localize("info.cofh.arrows") + ": ").append(getTextComponent("info.cofh.infinite").withStyle(ChatFormatting.LIGHT_PURPLE).withStyle(ChatFormatting.ITALIC))
+                : getTextComponent(localize("info.cofh.arrows") + ": " + getStoredArrows(stack) + " / " + format(getMaxArrows(stack))));
 
         FluidStack fluid = getFluid(stack);
         List<MobEffectInstance> effects = new ArrayList<>();
