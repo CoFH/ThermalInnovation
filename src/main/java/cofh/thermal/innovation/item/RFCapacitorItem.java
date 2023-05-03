@@ -97,7 +97,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
         }
         int extract = this.getExtract(stack);
         for (ItemStack equip : equipment) {
-            if (stack.isEmpty() || equip.equals(stack)) {
+            if (equip.isEmpty() || equip.equals(stack)) {
                 continue;
             }
             equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
@@ -107,7 +107,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
             CuriosProxy.getAllWorn(player).ifPresent(c -> {
                 for (int i = 0; i < c.getSlots(); ++i) {
                     ItemStack equip = c.getStackInSlot(i);
-                    if (stack.isEmpty() || equip.equals(stack)) {
+                    if (equip.isEmpty() || equip.equals(stack)) {
                         continue;
                     }
                     equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
