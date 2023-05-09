@@ -119,7 +119,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
             if (Utils.isServerWorld(entity.level)) {
                 for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
                     if (effect.getEffect().isInstantenous()) {
-                        effect.getEffect().applyInstantenousEffect(player, player, entity, effect.getAmplifier(), 0.5D);
+                        effect.getEffect().applyInstantenousEffect(player, player, entity, getEffectAmplifier(effect, stack), 0.5D);
                     } else {
                         MobEffectInstance potion = new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, stack) / 2, getEffectAmplifier(effect, stack), effect.isAmbient(), effect.isVisible());
                         entity.addEffect(potion);
@@ -164,7 +164,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
                     continue;
                 }
                 if (effect.getEffect().isInstantenous()) {
-                    effect.getEffect().applyInstantenousEffect(null, null, (LivingEntity) entityIn, effect.getAmplifier(), 0.5D);
+                    effect.getEffect().applyInstantenousEffect(null, null, (LivingEntity) entityIn, getEffectAmplifier(effect, stack), 0.5D);
                 } else {
                     MobEffectInstance potion = new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, stack) / 4, getEffectAmplifier(effect, stack), effect.isAmbient(), false);
                     living.addEffect(potion);

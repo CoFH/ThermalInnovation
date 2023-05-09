@@ -274,15 +274,11 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             ItemStack arrowStack;
 
             if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= MB_PER_USE) {
-                if (fluid.getTag().contains("CustomPotionEffects")) {
-                    List<MobEffectInstance> effects = new ArrayList<>();
-                    for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
-                        effects.add(new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));
-                    }
-                    arrowStack = PotionUtils.setCustomEffects(new ItemStack(Items.TIPPED_ARROW), effects);
-                } else {
-                    arrowStack = PotionUtils.setPotion(new ItemStack(Items.TIPPED_ARROW), PotionUtils.getPotion(fluid.getTag()));
+                List<MobEffectInstance> effects = new ArrayList<>();
+                for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
+                    effects.add(new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));
                 }
+                arrowStack = PotionUtils.setCustomEffects(new ItemStack(Items.TIPPED_ARROW), effects);
                 return ((TippedArrowItem) arrowStack.getItem()).createArrow(world, arrowStack, shooter);
             }
             arrowStack = new ItemStack(Items.ARROW);
