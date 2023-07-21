@@ -24,7 +24,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -157,11 +156,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             return false;
         }
         if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
-            if (player instanceof ServerPlayer && FilterHelper.hasFilter(stack) && getFilter(stack) instanceof MenuProvider filter) {
-                FilterHelper.openHeldScreen((ServerPlayer) player, filter);
-                return true;
-            }
-            return false;
+            return player instanceof ServerPlayer && openFilterGui((ServerPlayer) player, stack);
         } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.instabuild) {
             BlockHitResult traceResult = RayTracer.retrace(player, REACH);
             if (traceResult.getType() != HitResult.Type.BLOCK) {
@@ -256,7 +251,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         if (FILTERS.size() > MAP_CAPACITY) {
             FILTERS.clear();
         }
-        FILTERS.put(stack, FilterRegistry.getHeldFilter(filterType, stack.getTag()));
+        FILTERS.put(stack, FilterRegistry.getFilter(filterType, stack.getTag()));
         return FILTERS.get(stack);
     }
 
