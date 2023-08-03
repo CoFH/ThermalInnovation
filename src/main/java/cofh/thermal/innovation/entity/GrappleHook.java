@@ -213,7 +213,7 @@
 //            if (diff > 0) {
 //                accelerate(owner, dir.scale(diff));
 //            }
-//        } else if (dot < 0 || stateAge > AUTO_MAX_DURATION || movement(owner) < 0.03F) { //TODO adjust threshold
+//        } else if (dot < 0 || stateAge > AUTO_MAX_DURATION || movement(owner) < 0.03F) { // TODO adjust threshold
 //            return false;
 //        } else {
 //            this.length = dist;
@@ -231,7 +231,7 @@
 //        dir = dir.scale(1.0F / dist);
 //        double dot = dir.dot(ownerVel);
 //        if (grapple.getMode(stack) <= 0) {
-//            //TODO
+//            // TODO
 //            //double speed = grapple.getPullSpeed(stack);
 //            //if (owner.isUsingItem() && owner.getUseItem().equals(stack)) {
 //            //    this.length = this.length + (owner.isSecondaryUseActive() ? speed : -speed);
@@ -240,7 +240,7 @@
 //            //if (diff > 0) {
 //            //    accelerate(owner, dir.scale(diff));
 //            //}
-//        } else if (dot < 0 || stateAge > AUTO_MAX_DURATION || (movement(owner) < 0.03F && movement(target) < 0.03F)) { //TODO adjust threshold
+//        } else if (dot < 0 || stateAge > AUTO_MAX_DURATION || (movement(owner) < 0.03F && movement(target) < 0.03F)) { // TODO adjust threshold
 //            return false;
 //        } else {
 //            this.length = dist;
@@ -271,7 +271,7 @@
 //        onHit(result);
 //        setState(HOOKED_BLOCK);
 //
-//        //TODO
+//        // TODO
 //        super.onHitBlock(result);
 //        Vec3 disp = result.getLocation().subtract(this.getX(), this.getY(), this.getZ());
 //        this.setDeltaMovement(disp);

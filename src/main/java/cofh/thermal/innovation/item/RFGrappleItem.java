@@ -151,12 +151,12 @@
 //
 //    public float getShootSpeed(ItemStack stack) {
 //
-//        return getBaseMod(stack); //TODO tweak
+//        return getBaseMod(stack); // TODO tweak
 //    }
 //
 //    public float getPullSpeed(ItemStack stack) {
 //
-//        return getBaseMod(stack); //TODO tweak
+//        return getBaseMod(stack); // TODO tweak
 //    }
 //
 //    @Override
@@ -167,7 +167,7 @@
 //            return;
 //        }
 //        setAttributeFromAugmentAdd(subTag, augmentData, TAG_AUGMENT_REACH);
-//        //TODO reach
+//        // TODO reach
 //
 //        super.setAttributesFromAugment(container, augmentData);
 //    }
