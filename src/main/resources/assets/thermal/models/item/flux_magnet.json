@@ -1,5 +1,5 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "thermal:item/flux_magnet",
     "layer1": "thermal:item/flux_magnet_empty"

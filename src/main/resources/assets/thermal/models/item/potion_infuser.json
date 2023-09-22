@@ -1,5 +1,5 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
     "layer0": "thermal:item/potion_infuser",
     "layer1": "thermal:item/potion_infuser_outline"
