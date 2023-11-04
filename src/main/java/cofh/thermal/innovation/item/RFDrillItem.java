@@ -37,7 +37,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.capabilities.Capability;
@@ -60,16 +59,9 @@ import static net.minecraftforge.common.ToolActions.SHOVEL_DIG;
 public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
     protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
-    protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
     public static final int ENERGY_PER_USE = 200;
-
-    static {
-        MATERIALS.add(Material.HEAVY_METAL);
-        MATERIALS.add(Material.METAL);
-        MATERIALS.add(Material.STONE);
-    }
 
     public static void setupEnchants() {
 
@@ -114,7 +106,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) || state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override

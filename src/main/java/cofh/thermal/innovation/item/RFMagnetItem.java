@@ -135,7 +135,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                 if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                     continue;
                 }
-                if (item.getThrower() == null || !item.getThrower().equals(player.getUUID()) || item.getAge() >= PICKUP_DELAY) {
+                if (item.getOwner() == null || !item.getOwner().equals(player.getUUID()) || item.getAge() >= PICKUP_DELAY) {
                     if (item.position().distanceToSqr(player.position()) <= radSq) {
                         item.setPos(player.getX(), player.getY(), player.getZ());
                         item.setPickUpDelay(0);

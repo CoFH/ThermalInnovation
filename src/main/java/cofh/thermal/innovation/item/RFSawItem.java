@@ -41,7 +41,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.TierSortingRegistry;
 import net.minecraftforge.common.ToolAction;
 import net.minecraftforge.common.ToolActions;
@@ -64,17 +63,9 @@ import static net.minecraftforge.common.ToolActions.DEFAULT_AXE_ACTIONS;
 
 public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 
-    protected static final Set<Material> MATERIALS = new ObjectOpenHashSet<>();
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
     public static final int ENERGY_PER_USE = 200;
-
-    static {
-        MATERIALS.add(Material.WOOD);
-        MATERIALS.add(Material.PLANT);
-        MATERIALS.add(Material.REPLACEABLE_PLANT);
-        MATERIALS.add(Material.BAMBOO);
-    }
 
     public static void setupEnchants() {
 
@@ -119,7 +110,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
 
-        return MATERIALS.contains(state.getMaterial()) || state.is(BlockTags.MINEABLE_WITH_AXE) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
+        return state.is(BlockTags.MINEABLE_WITH_AXE) || state.is(BlockTags.MINEABLE_WITH_HOE) ? getEfficiency(stack) : super.getDestroySpeed(stack, state);
     }
 
     @Override

@@ -71,7 +71,7 @@
 //    }
 //
 //    @Override
-//    public Packet<?> getAddEntityPacket() {
+//    public Packet<ClientGamePacketListener> getAddEntityPacket() {
 //
 //        return NetworkHooks.getEntitySpawningPacket(this);
 //    }

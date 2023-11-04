@@ -27,10 +27,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
 import javax.annotation.Nonnull;
@@ -97,7 +97,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             if (equip.isEmpty() || equip.equals(stack)) {
                 continue;
             }
-            equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
+            equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
                     .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
         }
         CuriosProxy.getAllWorn(player).ifPresent(c -> {
@@ -106,7 +106,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
                 if (equip.isEmpty() || equip.equals(stack)) {
                     continue;
                 }
-                equip.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null)
+                equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
                         .ifPresent(f -> this.drainInternal(stack, f.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
             }
         });
