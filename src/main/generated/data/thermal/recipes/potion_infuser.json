@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
+  "category": "equipment",
   "key": {
     "B": {
       "item": "minecraft:glass_bottle"
@@ -21,5 +22,6 @@
   ],
   "result": {
     "item": "thermal:potion_infuser"
-  }
+  },
+  "show_notification": true
 }
