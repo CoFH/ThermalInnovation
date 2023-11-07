@@ -1,9 +1,9 @@
-package cofh.thermal.innovation.block.entity;
+package cofh.thermal.innovation.common.block.entity;
 
 import cofh.core.util.helpers.AugmentDataHelper;
 import cofh.lib.api.block.entity.ITickableTile;
-import cofh.lib.energy.EnergyStorageCoFH;
-import cofh.thermal.lib.block.entity.AugmentableBlockEntity;
+import cofh.lib.common.energy.EnergyStorageCoFH;
+import cofh.thermal.lib.common.block.entity.AugmentableBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -17,8 +17,8 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.thermal.core.config.ThermalCoreConfig.storageAugments;
-import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
+import static cofh.thermal.core.common.config.ThermalCoreConfig.storageAugments;
+import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
 public class WirelessChargerBlockEntity extends AugmentableBlockEntity implements ITickableTile.IServerTickable {
 

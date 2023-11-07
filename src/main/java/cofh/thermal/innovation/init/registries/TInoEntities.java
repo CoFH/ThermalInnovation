@@ -1,4 +1,4 @@
-package cofh.thermal.innovation.init;
+package cofh.thermal.innovation.init.registries;
 
 //import cofh.thermal.innovation.entity.GrappleHook;
 //import net.minecraft.world.entity.EntityType;

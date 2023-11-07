@@ -2,10 +2,10 @@ package cofh.thermal.innovation;
 
 //import cofh.thermal.innovation.client.renderer.GrappleHookRenderer;
 
-import cofh.thermal.innovation.config.TInoToolConfig;
-import cofh.thermal.innovation.init.TInoBlocks;
-import cofh.thermal.innovation.init.TInoEntities;
-import cofh.thermal.innovation.init.TInoItems;
+import cofh.thermal.innovation.common.config.TInoToolConfig;
+import cofh.thermal.innovation.init.registries.TInoBlocks;
+import cofh.thermal.innovation.init.registries.TInoEntities;
+import cofh.thermal.innovation.init.registries.TInoItems;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -15,9 +15,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.ThermalCore.CONFIG_MANAGER;
-import static cofh.thermal.lib.common.ThermalFlags.*;
-import static cofh.thermal.lib.common.ThermalIDs.ID_CHARGE_BENCH;
-import static cofh.thermal.lib.common.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
+import static cofh.thermal.lib.init.ThermalFlags.*;
+import static cofh.thermal.lib.init.ThermalIDs.ID_CHARGE_BENCH;
+import static cofh.thermal.lib.init.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
 
 @Mod (ID_THERMAL_INNOVATION)
 public class ThermalInnovation {

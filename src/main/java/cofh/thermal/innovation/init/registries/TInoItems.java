@@ -1,12 +1,12 @@
-package cofh.thermal.innovation.init;
+package cofh.thermal.innovation.init.registries;
 
-import cofh.thermal.innovation.item.*;
+import cofh.thermal.innovation.common.item.*;
 import net.minecraft.world.item.Item;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.util.RegistrationHelper.registerItem;
-import static cofh.thermal.innovation.init.TInoIDs.*;
-import static cofh.thermal.lib.common.ThermalCreativeTabs.toolsTab;
+import static cofh.thermal.innovation.init.registries.TInoIDs.*;
+import static cofh.thermal.lib.init.ThermalCreativeTabs.toolsTab;
 
 public class TInoItems {
 

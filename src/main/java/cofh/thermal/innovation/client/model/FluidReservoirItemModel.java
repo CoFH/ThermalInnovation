@@ -1,6 +1,6 @@
 package cofh.thermal.innovation.client.model;
 
-import cofh.core.item.IMultiModeItem;
+import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.item.ICoFHItem;
 import cofh.lib.util.helpers.MathHelper;

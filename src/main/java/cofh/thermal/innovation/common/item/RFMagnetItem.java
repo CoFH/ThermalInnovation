@@ -1,6 +1,6 @@
-package cofh.thermal.innovation.item;
+package cofh.thermal.innovation.common.item;
 
-import cofh.core.item.IMultiModeItem;
+import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.filter.EmptyFilter;
 import cofh.core.util.filter.FilterRegistry;
@@ -10,9 +10,9 @@ import cofh.core.util.helpers.FilterHelper;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.raytracer.RayTracer;
-import cofh.thermal.core.config.ThermalCoreConfig;
-import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
+import cofh.thermal.core.common.config.ThermalCoreConfig;
+import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -45,8 +45,8 @@ import java.util.function.Predicate;
 import static cofh.core.util.helpers.AugmentableHelper.*;
 import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
-import static cofh.thermal.core.init.TCoreSounds.SOUND_MAGNET;
-import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
+import static cofh.thermal.core.init.registries.TCoreSounds.SOUND_MAGNET;
+import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
 public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 

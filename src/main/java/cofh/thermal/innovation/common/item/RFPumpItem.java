@@ -1,15 +1,15 @@
-package cofh.thermal.innovation.item;
+package cofh.thermal.innovation.common.item;
 
-import cofh.core.capability.CapabilityAreaEffect;
-import cofh.core.item.IMultiModeItem;
+import cofh.core.common.capability.CapabilityAreaEffect;
+import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.AreaEffectHelper;
 import cofh.lib.api.capability.IAreaEffectItem;
 import cofh.lib.api.item.IEnergyContainerItem;
-import cofh.lib.energy.EnergyContainerItemWrapper;
-import cofh.thermal.core.config.ThermalCoreConfig;
-import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
+import cofh.lib.common.energy.EnergyContainerItemWrapper;
+import cofh.thermal.core.common.config.ThermalCoreConfig;
+import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -37,7 +37,7 @@ import java.util.List;
 import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
-import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
+import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
 public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem {
 

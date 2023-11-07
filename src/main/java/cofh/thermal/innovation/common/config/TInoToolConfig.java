@@ -1,15 +1,15 @@
-package cofh.thermal.innovation.config;
+package cofh.thermal.innovation.common.config;
 
-import cofh.core.config.IBaseConfig;
-import cofh.core.item.EnergyContainerItem;
-import cofh.core.item.FluidContainerItem;
+import cofh.core.common.config.IBaseConfig;
+import cofh.core.common.item.EnergyContainerItem;
+import cofh.core.common.item.FluidContainerItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.function.Supplier;
 
 import static cofh.thermal.core.ThermalCore.ITEMS;
-import static cofh.thermal.innovation.init.TInoIDs.*;
+import static cofh.thermal.innovation.init.registries.TInoIDs.*;
 
 public class TInoToolConfig implements IBaseConfig {
 

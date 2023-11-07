@@ -1,4 +1,4 @@
-package cofh.thermal.innovation.data.providers;
+package cofh.thermal.innovation.init.data.providers;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL;
 import static cofh.thermal.core.ThermalCore.ITEMS;
-import static cofh.thermal.innovation.init.TInoIDs.ID_FLUX_DRILL;
+import static cofh.thermal.innovation.init.registries.TInoIDs.ID_FLUX_DRILL;
 
 public class TInoTagsProvider {
 

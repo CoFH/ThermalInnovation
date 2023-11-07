@@ -1,4 +1,4 @@
-package cofh.thermal.innovation.init;
+package cofh.thermal.innovation.init.registries;
 
 public class TInoIDs {
 

@@ -1,13 +1,13 @@
-package cofh.thermal.innovation.item;
+package cofh.thermal.innovation.common.item;
 
+import cofh.core.common.item.IMultiModeItem;
 import cofh.core.compat.curios.CuriosProxy;
-import cofh.core.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.util.Utils;
-import cofh.thermal.core.config.ThermalCoreConfig;
-import cofh.thermal.lib.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.item.IFlexibleEnergyContainerItem;
+import cofh.thermal.core.common.config.ThermalCoreConfig;
+import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
+import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
 import cofh.thermal.lib.util.ThermalEnergyHelper;
 import com.google.common.collect.Iterables;
 import net.minecraft.ChatFormatting;
@@ -31,7 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
-import static cofh.thermal.lib.common.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
+import static cofh.thermal.lib.util.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
 
 public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
 

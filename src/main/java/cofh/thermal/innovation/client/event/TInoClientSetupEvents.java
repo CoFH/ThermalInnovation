@@ -1,4 +1,4 @@
-package cofh.thermal.innovation.event;
+package cofh.thermal.innovation.client.event;
 
 import cofh.thermal.innovation.client.model.FluidReservoirItemModel;
 import net.minecraftforge.api.distmarker.Dist;

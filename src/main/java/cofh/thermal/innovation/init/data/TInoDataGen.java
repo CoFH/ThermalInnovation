@@ -1,7 +1,7 @@
-package cofh.thermal.innovation.data;
+package cofh.thermal.innovation.init.data;
 
-import cofh.thermal.innovation.data.providers.TInoRecipeProvider;
-import cofh.thermal.innovation.data.providers.TInoTagsProvider;
+import cofh.thermal.innovation.init.data.providers.TInoRecipeProvider;
+import cofh.thermal.innovation.init.data.providers.TInoTagsProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;

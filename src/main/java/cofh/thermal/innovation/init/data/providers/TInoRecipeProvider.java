@@ -1,8 +1,8 @@
-package cofh.thermal.innovation.data.providers;
+package cofh.thermal.innovation.init.data.providers;
 
-import cofh.lib.data.RecipeProviderCoFH;
-import cofh.lib.tags.ItemTagsCoFH;
-import cofh.thermal.lib.common.ThermalFlags;
+import cofh.lib.init.data.RecipeProviderCoFH;
+import cofh.lib.init.tags.ItemTagsCoFH;
+import cofh.thermal.lib.init.ThermalFlags;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL;
 import static cofh.thermal.core.ThermalCore.ITEMS;
-import static cofh.thermal.innovation.init.TInoIDs.*;
+import static cofh.thermal.innovation.init.registries.TInoIDs.*;
 import static net.minecraft.data.recipes.RecipeCategory.TOOLS;
 
 public class TInoRecipeProvider extends RecipeProviderCoFH {

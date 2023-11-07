@@ -1,16 +1,16 @@
-package cofh.thermal.innovation.item;
+package cofh.thermal.innovation.common.item;
 
-import cofh.core.capability.CapabilityArchery;
-import cofh.core.item.IMultiModeItem;
+import cofh.core.common.capability.CapabilityArchery;
+import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.capability.IArcheryAmmoItem;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.api.item.IFluidContainerItem;
-import cofh.lib.fluid.FluidContainerItemWrapper;
+import cofh.lib.common.fluid.FluidContainerItemWrapper;
 import cofh.lib.util.Utils;
-import cofh.thermal.core.config.ThermalCoreConfig;
-import cofh.thermal.lib.item.FluidContainerItemAugmentable;
+import cofh.thermal.core.common.config.ThermalCoreConfig;
+import cofh.thermal.lib.common.item.FluidContainerItemAugmentable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -46,7 +46,7 @@ import static cofh.lib.api.ContainerType.ITEM;
 import static cofh.lib.util.Utils.getItemEnchantmentLevel;
 import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.lib.util.helpers.StringHelper.*;
-import static cofh.thermal.lib.common.ThermalAugmentRules.createAllowValidator;
+import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
 import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
