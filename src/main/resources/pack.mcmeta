@@ -1,7 +1,8 @@
 {
-    "pack": {
-        "description": "CoFH - Thermal Innovation Resources",
-        "pack_format": 10,
-        "_comment": ""
-    }
+  "pack": {
+    "description": {
+      "translate": "pack.thermal_innovation.description"
+    },
+    "pack_format": 15
+  }
 }
