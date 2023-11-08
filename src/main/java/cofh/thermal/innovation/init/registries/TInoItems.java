@@ -4,9 +4,9 @@ import cofh.thermal.innovation.common.item.*;
 import net.minecraft.world.item.Item;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
+import static cofh.thermal.core.init.registries.ThermalCreativeTabs.toolsTab;
 import static cofh.thermal.core.util.RegistrationHelper.registerItem;
 import static cofh.thermal.innovation.init.registries.TInoIDs.*;
-import static cofh.thermal.lib.init.ThermalCreativeTabs.toolsTab;
 
 public class TInoItems {
 
