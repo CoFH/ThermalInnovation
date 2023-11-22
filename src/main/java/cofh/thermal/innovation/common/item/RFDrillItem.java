@@ -61,7 +61,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
-    public static final int ENERGY_PER_USE = 200;
+    protected int energyPerUse = 200;
 
     public static void setupEnchants() {
 
@@ -80,6 +80,12 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);
+    }
+
+    @Override
+    public void setEnergyPerUse(int energyPerUse) {
+
+        this.energyPerUse = energyPerUse;
     }
 
     @Override
@@ -225,7 +231,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
 
     protected int getEnergyPerUse(ItemStack stack) {
 
-        return ENERGY_PER_USE;
+        return energyPerUse;
     }
 
     protected Tier getHarvestTier(ItemStack stack) {

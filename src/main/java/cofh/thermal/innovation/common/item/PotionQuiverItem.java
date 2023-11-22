@@ -52,7 +52,7 @@ import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIM
 
 public class PotionQuiverItem extends FluidContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem {
 
-    protected static final int MB_PER_USE = 50;
+    protected int fluidPerUse = 50;
 
     protected int arrowCapacity;
 
@@ -73,6 +73,11 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
 
         super(builder, fluidCapacity, validator);
         this.arrowCapacity = arrowCapacity;
+    }
+
+    public void setFluidPerUse(int fluidPerUse) {
+
+        this.fluidPerUse = fluidPerUse;
     }
 
     @Override
@@ -260,7 +265,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             if (shooter != null) {
                 if (!shooter.abilities.instabuild) {
                     removeArrows(container, 1, false);
-                    drain(MB_PER_USE, getMode(container) == 1 ? EXECUTE : SIMULATE);
+                    drain(fluidPerUse, getMode(container) == 1 ? EXECUTE : SIMULATE);
                 }
             }
         }
@@ -271,7 +276,7 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             FluidStack fluid = getFluid(container);
             ItemStack arrowStack;
 
-            if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= MB_PER_USE) {
+            if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= fluidPerUse) {
                 List<MobEffectInstance> effects = new ArrayList<>();
                 for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
                     effects.add(new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));

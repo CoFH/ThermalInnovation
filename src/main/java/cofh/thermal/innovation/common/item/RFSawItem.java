@@ -65,7 +65,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 
-    public static final int ENERGY_PER_USE = 200;
+    protected int energyPerUse = 200;
 
     public static void setupEnchants() {
 
@@ -84,6 +84,12 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);
+    }
+
+    @Override
+    public void setEnergyPerUse(int energyPerUse) {
+
+        this.energyPerUse = energyPerUse;
     }
 
     @Override
@@ -270,7 +276,7 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
 
     protected int getEnergyPerUse(ItemStack stack) {
 
-        return ENERGY_PER_USE;
+        return energyPerUse;
     }
 
     protected Tier getHarvestTier(ItemStack stack) {

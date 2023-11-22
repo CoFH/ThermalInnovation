@@ -42,10 +42,8 @@ import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXE
 
 public class PotionInfuserItem extends FluidContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem {
 
-    protected static final int TIME_CONSTANT = 32;
-
-    protected static final int MB_PER_CYCLE = 50;
-    protected static final int MB_PER_USE = 250;
+    protected int fluidPerCycle = 50;
+    protected int fluidPerUse = 250;
 
     public PotionInfuserItem(Properties builder, int fluidCapacity) {
 
@@ -74,6 +72,16 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
 
         this.augValidator = augValidator;
         return this;
+    }
+
+    public void setFluidPerCycle(int fluidPerCycle) {
+
+        this.fluidPerCycle = fluidPerCycle;
+    }
+
+    public void setFluidPerUse(int fluidPerUse) {
+
+        this.fluidPerUse = fluidPerUse;
     }
 
     @Override
@@ -113,7 +121,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity entity, InteractionHand hand) {
 
         FluidStack fluid = getFluid(stack);
-        if (fluid != null && fluid.getAmount() >= MB_PER_USE) {
+        if (fluid != null && fluid.getAmount() >= fluidPerUse) {
             if (Utils.isServerWorld(entity.level)) {
                 for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
                     if (effect.getEffect().isInstantenous()) {
@@ -124,7 +132,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
                     }
                 }
                 if (!player.abilities.instabuild) {
-                    drain(stack, MB_PER_USE, EXECUTE);
+                    drain(stack, fluidPerUse, EXECUTE);
                 }
             }
             player.swing(hand);
@@ -153,7 +161,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
         }
         LivingEntity living = (LivingEntity) entityIn;
         FluidStack fluid = getFluid(stack);
-        if (fluid != null && fluid.getAmount() >= MB_PER_CYCLE) {
+        if (fluid != null && fluid.getAmount() >= fluidPerCycle) {
             boolean used = false;
             for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
                 MobEffectInstance active = living.getActiveEffectsMap().get(effect.getEffect());
@@ -173,7 +181,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
                 return;
             }
             if (used) {
-                drain(stack, MB_PER_CYCLE, EXECUTE);
+                drain(stack, fluidPerCycle, EXECUTE);
             }
         }
     }
@@ -199,7 +207,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
         }
         if (Utils.isServerWorld(player.level)) {
             FluidStack fluid = getFluid(stack);
-            if (fluid != null && (fluid.getAmount() >= MB_PER_USE || player.abilities.instabuild)) {
+            if (fluid != null && (fluid.getAmount() >= fluidPerUse || player.abilities.instabuild)) {
                 for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
                     if (effect.getEffect().isInstantenous()) {
                         effect.getEffect().applyInstantenousEffect(null, null, player, getEffectAmplifier(effect, stack), 1.0D);
@@ -209,7 +217,7 @@ public class PotionInfuserItem extends FluidContainerItemAugmentable implements 
                     }
                 }
                 if (!player.abilities.instabuild) {
-                    drain(stack, MB_PER_USE, EXECUTE);
+                    drain(stack, fluidPerUse, EXECUTE);
                 }
             }
         }

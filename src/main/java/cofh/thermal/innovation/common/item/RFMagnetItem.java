@@ -56,10 +56,12 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     protected static final int RADIUS = 4;
     protected static final int REACH = 64;
 
-    protected static final int PICKUP_DELAY = 32;
+    protected static final int MIN_AGE = 20;
 
-    protected static final int ENERGY_PER_ITEM = 25;
-    protected static final int ENERGY_PER_USE = 200;
+    protected int energyPerItem = 25;
+    protected int energyPerUse = 200;
+
+    protected boolean obeyPickupDelay = true;
 
     public RFMagnetItem(Properties builder, int maxEnergy, int maxTransfer) {
 
@@ -71,6 +73,22 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
         augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
+    }
+
+    @Override
+    public void setEnergyPerUse(int energyPerUse) {
+
+        this.energyPerUse = energyPerUse;
+    }
+
+    public void setEnergyPerItem(int energyPerItem) {
+
+        this.energyPerItem = energyPerItem;
+    }
+
+    public void setObeyItemPickupDelay(boolean obeyPickupDelay) {
+
+        this.obeyPickupDelay = obeyPickupDelay;
     }
 
     @Override
@@ -110,7 +128,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         }
         Player player = (Player) entityIn;
 
-        if (getEnergyStored(stack) < ENERGY_PER_ITEM && !player.abilities.instabuild) {
+        if (getEnergyStored(stack) < energyPerItem && !player.abilities.instabuild) {
             return;
         }
         int radius = getRadius(stack);
@@ -121,7 +139,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
 
         if (Utils.isClientWorld(worldIn)) {
             for (ItemEntity item : items) {
-                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
+                if (obeyPickupDelay && item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT)) {
                     continue;
                 }
                 if (item.position().distanceToSqr(player.position()) <= radSq) {
@@ -132,10 +150,10 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
             int itemCount = 0;
             for (ItemEntity item : items) {
-                if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                if (obeyPickupDelay && item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                     continue;
                 }
-                if (item.getOwner() == null || !item.getOwner().equals(player.getUUID()) || item.getAge() >= PICKUP_DELAY) {
+                if (item.getOwner() == null || !obeyPickupDelay || item.getAge() >= MIN_AGE) {
                     if (item.position().distanceToSqr(player.position()) <= radSq) {
                         item.setPos(player.getX(), player.getY(), player.getZ());
                         item.setPickUpDelay(0);
@@ -144,7 +162,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                 }
             }
             if (!player.abilities.instabuild) {
-                extractEnergy(stack, ENERGY_PER_ITEM * itemCount, false);
+                extractEnergy(stack, energyPerItem * itemCount, false);
             }
         }
     }
@@ -157,7 +175,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         }
         if (player.isSecondaryUseActive() && hand == InteractionHand.MAIN_HAND) {
             return player instanceof ServerPlayer && openFilterGui((ServerPlayer) player, stack);
-        } else if (getEnergyStored(stack) >= ENERGY_PER_USE || player.abilities.instabuild) {
+        } else if (getEnergyStored(stack) >= energyPerUse || player.abilities.instabuild) {
             BlockHitResult traceResult = RayTracer.retrace(player, REACH);
             if (traceResult.getType() != HitResult.Type.BLOCK) {
                 return false;
@@ -181,7 +199,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                 Predicate<ItemStack> filterRules = getFilter(stack).getItemRules();
                 int itemCount = 0;
                 for (ItemEntity item : items) {
-                    if (item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
+                    if (obeyPickupDelay && item.hasPickUpDelay() || item.getPersistentData().getBoolean(TAG_CONVEYOR_COMPAT) || !filterRules.test(item.getItem())) {
                         continue;
                     }
                     if (item.position().distanceToSqr(traceResult.getLocation()) <= radSq) {
@@ -191,7 +209,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
                     }
                 }
                 if (!player.abilities.instabuild && itemCount > 0) {
-                    extractEnergy(stack, ENERGY_PER_USE + ENERGY_PER_ITEM * itemCount, false);
+                    extractEnergy(stack, energyPerUse + energyPerItem * itemCount, false);
                 }
             }
             player.swing(hand);
