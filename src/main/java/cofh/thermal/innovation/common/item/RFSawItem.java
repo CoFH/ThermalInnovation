@@ -145,6 +145,9 @@ public class RFSawItem extends EnergyContainerItemAugmentable implements IColora
     @Override
     public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
 
+        if (!hasEnergy(stack)) {
+            return false;
+        }
         if (state.is(BlockTags.MINEABLE_WITH_AXE)) {
             return TierSortingRegistry.isCorrectTierForDrops(getHarvestTier(stack), state);
         }

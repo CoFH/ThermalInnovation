@@ -21,7 +21,7 @@ Contains player-centric power - useful tools, gadgets, and armor.
 [[dependencies.thermal_innovation]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[${mc_version},)"
+versionRange = "1.20.1"
 ordering = "AFTER"
 side = "BOTH"
 

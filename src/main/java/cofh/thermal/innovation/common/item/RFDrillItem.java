@@ -141,6 +141,9 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     @Override
     public boolean isCorrectToolForDrops(ItemStack stack, BlockState state) {
 
+        if (!hasEnergy(stack)) {
+            return false;
+        }
         if (state.is(BlockTags.MINEABLE_WITH_PICKAXE) || state.is(BlockTags.MINEABLE_WITH_SHOVEL)) {
             return TierSortingRegistry.isCorrectTierForDrops(getHarvestTier(stack), state);
         }
