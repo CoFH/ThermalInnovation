@@ -31,6 +31,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -48,7 +49,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.registries.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
 
     protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);

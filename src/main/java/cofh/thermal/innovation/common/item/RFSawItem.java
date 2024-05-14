@@ -61,7 +61,7 @@ import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.common.ToolActions.DEFAULT_AXE_ACTIONS;
 
-public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+public class RFSawItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
 
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
 

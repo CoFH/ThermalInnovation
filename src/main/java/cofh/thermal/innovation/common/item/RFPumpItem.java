@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -39,7 +40,7 @@ import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAd
 import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
-public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem {
+public class RFPumpItem extends EnergyContainerItemAugmentable implements IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
 
     public static final int ENERGY_PER_USE = 200;
 

@@ -56,7 +56,7 @@ import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 import static net.minecraftforge.common.ToolActions.PICKAXE_DIG;
 import static net.minecraftforge.common.ToolActions.SHOVEL_DIG;
 
-public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem {
+public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
 
     protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
