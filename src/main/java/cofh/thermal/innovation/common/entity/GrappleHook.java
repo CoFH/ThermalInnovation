@@ -22,8 +22,8 @@
 //import net.minecraft.world.phys.EntityHitResult;
 //import net.minecraft.world.phys.HitResult;
 //import net.minecraft.world.phys.Vec3;
-//import net.minecraftforge.event.ForgeEventFactory;
-//import net.minecraftforge.network.NetworkHooks;
+//import net.neoforged.neoforge.event.ForgeEventFactory;
+//import net.neoforged.neoforge.network.NetworkHooks;
 //
 //import javax.annotation.Nullable;
 //import java.util.Comparator;

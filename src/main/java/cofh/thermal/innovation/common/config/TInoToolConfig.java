@@ -6,7 +6,7 @@ import cofh.core.common.item.FluidContainerItem;
 import cofh.thermal.innovation.common.item.RFMagnetItem;
 import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.function.Supplier;
 
@@ -16,7 +16,7 @@ import static cofh.thermal.innovation.init.registries.TInoIDs.*;
 public class TInoToolConfig implements IBaseConfig {
 
     @Override
-    public void apply(ForgeConfigSpec.Builder builder) {
+    public void apply(ModConfigSpec.Builder builder) {
 
         builder.push("Tools");
 

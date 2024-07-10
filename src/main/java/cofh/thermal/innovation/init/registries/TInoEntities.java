@@ -3,7 +3,7 @@ package cofh.thermal.innovation.init.registries;
 //import cofh.thermal.innovation.entity.GrappleHook;
 //import net.minecraft.world.entity.EntityType;
 //import net.minecraft.world.entity.MobCategory;
-//import net.minecraftforge.registries.RegistryObject;
+//import net.neoforged.neoforge.registries.RegistryObject;
 //
 //import static cofh.thermal.core.ThermalCore.ENTITIES;
 //import static cofh.thermal.innovation.init.TInoIDs.ID_FLUX_GRAPPLE;
