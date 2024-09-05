@@ -6,13 +6,14 @@ import cofh.thermal.innovation.common.config.TInoToolConfig;
 import cofh.thermal.innovation.init.registries.TInoBlocks;
 import cofh.thermal.innovation.init.registries.TInoEntities;
 import cofh.thermal.innovation.init.registries.TInoItems;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
+import static cofh.lib.util.FlagManager.setFlag;
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 import static cofh.thermal.core.ThermalCore.CONFIG_MANAGER;
 import static cofh.thermal.lib.util.ThermalFlags.*;
@@ -22,11 +23,9 @@ import static cofh.thermal.lib.util.ThermalIDs.ID_DEVICE_POTION_DIFFUSER;
 @Mod (ID_THERMAL_INNOVATION)
 public class ThermalInnovation {
 
-    public ThermalInnovation() {
+    public ThermalInnovation(ModContainer modContainer, IEventBus modEventBus) {
 
         setFeatureFlags();
-
-        final IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         CONFIG_MANAGER.register(modEventBus)
                 .addServerConfig(new TInoToolConfig());

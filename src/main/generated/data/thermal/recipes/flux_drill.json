@@ -3,10 +3,10 @@
   "category": "equipment",
   "key": {
     "C": {
-      "tag": "forge:gears/gold"
+      "tag": "c:gears/gold"
     },
     "G": {
-      "tag": "forge:gears/tin"
+      "tag": "c:gears/tin"
     },
     "I": {
       "tag": "forge:ingots/iron"
@@ -25,6 +25,5 @@
   ],
   "result": {
     "item": "thermal:flux_drill"
-  },
-  "show_notification": true
+  }
 }

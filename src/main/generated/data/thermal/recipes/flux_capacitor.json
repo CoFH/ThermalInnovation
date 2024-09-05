@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "L": {
-      "tag": "forge:ingots/lead"
+      "tag": "c:ingots/lead"
     },
     "P": {
       "item": "thermal:rf_coil"
@@ -19,6 +19,5 @@
   ],
   "result": {
     "item": "thermal:flux_capacitor"
-  },
-  "show_notification": true
+  }
 }

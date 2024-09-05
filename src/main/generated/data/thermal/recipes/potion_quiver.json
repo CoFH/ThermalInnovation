@@ -9,7 +9,7 @@
       "tag": "forge:ingots/copper"
     },
     "G": {
-      "tag": "forge:gears/silver"
+      "tag": "c:gears/silver"
     },
     "R": {
       "item": "thermal:cured_rubber"
@@ -25,6 +25,5 @@
   ],
   "result": {
     "item": "thermal:potion_quiver"
-  },
-  "show_notification": true
+  }
 }

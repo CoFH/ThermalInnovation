@@ -28,7 +28,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.common.capabilities.ForgeCapabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -43,8 +43,8 @@ import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_FLUID;
 import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_UPGRADE;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
+import static net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
+import static net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
 public class FluidReservoirItem extends FluidContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, Vanishable {
 
@@ -98,8 +98,10 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
             if (equip.isEmpty() || equip.equals(stack)) {
                 continue;
             }
-            equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
-                    .ifPresent(c -> this.drainInternal(stack, c.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
+            var handler = equip.getCapability(Capabilities.FluidHandler.ITEM);
+            if (handler != null) {
+                this.drainInternal(stack, handler.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE);
+            }
         }
         CuriosProxy.getAllWorn(player).ifPresent(c -> {
             for (int i = 0; i < c.getSlots(); ++i) {
@@ -107,8 +109,10 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
                 if (equip.isEmpty() || equip.equals(stack)) {
                     continue;
                 }
-                equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
-                        .ifPresent(f -> this.drainInternal(stack, f.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE));
+                var handler = equip.getCapability(Capabilities.FluidHandler.ITEM);
+                if (handler != null) {
+                    this.drainInternal(stack, handler.fill(new FluidStack(getFluid(stack), Math.min(getFluidAmount(stack), BUCKET_VOLUME)), EXECUTE), player.abilities.instabuild ? SIMULATE : EXECUTE);
+                }
             }
         });
     }

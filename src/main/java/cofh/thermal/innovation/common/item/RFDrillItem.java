@@ -1,24 +1,21 @@
 package cofh.thermal.innovation.common.item;
 
-import cofh.core.common.capability.CapabilityAreaEffect;
 import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.AreaEffectHelper;
-import cofh.lib.api.capability.IAreaEffectItem;
+import cofh.lib.api.capability.IAreaEffectHandler;
 import cofh.lib.api.item.IColorableItem;
 import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.common.energy.EnergyContainerItemWrapper;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.common.config.ThermalCoreConfig;
 import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,11 +36,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.TierSortingRegistry;
 import net.neoforged.neoforge.common.ToolAction;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
-import net.neoforged.neoforge.common.util.LazyOptional;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Set;
@@ -53,10 +46,10 @@ import static cofh.core.util.helpers.AugmentableHelper.getPropertyWithDefault;
 import static cofh.core.util.helpers.AugmentableHelper.setAttributeFromAugmentAdd;
 import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
-import static net.minecraftforge.common.ToolActions.PICKAXE_DIG;
-import static net.minecraftforge.common.ToolActions.SHOVEL_DIG;
+import static net.neoforged.neoforge.common.ToolActions.PICKAXE_DIG;
+import static net.neoforged.neoforge.common.ToolActions.SHOVEL_DIG;
 
-public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
+public class RFDrillItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IEnergyContainerItem, Vanishable {
 
     protected static final Set<ToolAction> DEFAULT_DRILL_ACTIONS = toolActions(PICKAXE_DIG, SHOVEL_DIG);
     protected static final Set<Enchantment> VALID_ENCHANTS = new ObjectOpenHashSet<>();
@@ -258,12 +251,6 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     }
     // endregion
 
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-
-        return new RFDrillItemWrapper(stack, this);
-    }
-
     // region IAugmentableItem
     @Override
     public void updateAugmentState(ItemStack container, List<ItemStack> augments) {
@@ -300,13 +287,14 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     // endregion
 
     // region CAPABILITY WRAPPER
-    protected class RFDrillItemWrapper extends EnergyContainerItemWrapper implements IAreaEffectItem {
+    protected class RFDrillItemWrapper extends EnergyContainerItemWrapper implements IAreaEffectHandler {
 
-        private final LazyOptional<IAreaEffectItem> holder = LazyOptional.of(() -> this);
+        protected final RFDrillItem drill;
 
-        RFDrillItemWrapper(ItemStack containerIn, IEnergyContainerItem itemIn) {
+        RFDrillItemWrapper(ItemStack containerIn, RFDrillItem itemIn) {
 
-            super(containerIn, itemIn, itemIn.getEnergyCapability());
+            super(containerIn, itemIn);
+            drill = itemIn;
         }
 
         @Override
@@ -315,17 +303,6 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
             return AreaEffectHelper.getBreakableBlocksRadius(container, pos, player, getMode(container));
         }
 
-        // region ICapabilityProvider
-        @Override
-        @Nonnull
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-
-            if (cap == CapabilityAreaEffect.AREA_EFFECT_ITEM_CAPABILITY) {
-                return CapabilityAreaEffect.AREA_EFFECT_ITEM_CAPABILITY.orEmpty(cap, holder);
-            }
-            return super.getCapability(cap, side);
-        }
-        // endregion
     }
     // endregion
 }

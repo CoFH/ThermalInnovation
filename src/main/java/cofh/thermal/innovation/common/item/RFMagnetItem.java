@@ -8,11 +8,11 @@ import cofh.core.util.filter.IFilter;
 import cofh.core.util.filter.IFilterableItem;
 import cofh.core.util.helpers.FilterHelper;
 import cofh.lib.api.item.IColorableItem;
+import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.util.Utils;
 import cofh.lib.util.raytracer.RayTracer;
 import cofh.thermal.core.common.config.ThermalCoreConfig;
 import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -49,7 +49,7 @@ import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.core.init.registries.TCoreSounds.SOUND_MAGNET;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
-public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
+public class RFMagnetItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IFilterableItem, IMultiModeItem, IEnergyContainerItem, Vanishable {
 
     protected static final int MAP_CAPACITY = 128;
     protected static final WeakHashMap<ItemStack, IFilter> FILTERS = new WeakHashMap<>(MAP_CAPACITY);
@@ -135,7 +135,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         int radius = getRadius(stack);
         int radSq = radius * radius;
 
-        AABB area = new AABB(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
+        AABB area = AABB.encapsulatingFullBlocks(player.blockPosition().offset(-radius, -radius, -radius), player.blockPosition().offset(1 + radius, 1 + radius, 1 + radius));
         List<ItemEntity> items = worldIn.getEntitiesOfClass(ItemEntity.class, area, EntitySelector.ENTITY_STILL_ALIVE);
 
         if (Utils.isClientWorld(worldIn)) {
@@ -187,7 +187,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
             Level world = player.getCommandSenderWorld();
             BlockPos pos = traceResult.getBlockPos();
 
-            AABB area = new AABB(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
+            AABB area = AABB.encapsulatingFullBlocks(pos.offset(-radius, -radius, -radius), pos.offset(1 + radius, 1 + radius, 1 + radius));
             List<ItemEntity> items = world.getEntitiesOfClass(ItemEntity.class, area, EntitySelector.ENTITY_STILL_ALIVE);
 
             if (Utils.isClientWorld(world)) {

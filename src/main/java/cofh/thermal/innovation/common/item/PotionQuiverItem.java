@@ -1,18 +1,15 @@
 package cofh.thermal.innovation.common.item;
 
-import cofh.core.common.capability.CapabilityArchery;
 import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.FluidHelper;
 import cofh.lib.api.capability.IArcheryAmmoItem;
 import cofh.lib.api.item.IColorableItem;
-import cofh.lib.api.item.IFluidContainerItem;
 import cofh.lib.common.fluid.FluidContainerItemWrapper;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.common.config.ThermalCoreConfig;
 import cofh.thermal.lib.common.item.FluidContainerItemAugmentable;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,12 +24,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.capabilities.Capability;
-import net.neoforged.neoforge.common.capabilities.ICapabilityProvider;
-import net.neoforged.neoforge.common.util.LazyOptional;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +40,8 @@ import static cofh.lib.util.Utils.getItemEnchantmentLevel;
 import static cofh.lib.util.constants.NBTTags.*;
 import static cofh.lib.util.helpers.StringHelper.*;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
+import static net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
+import static net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
 
 public class PotionQuiverItem extends FluidContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, Vanishable {
 
@@ -207,12 +200,6 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     }
     // endregion
 
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-
-        return new PotionQuiverItemWrapper(stack, this);
-    }
-
     // region IAugmentableItem
     @Override
     public void updateAugmentState(ItemStack container, List<ItemStack> augments) {
@@ -250,13 +237,14 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     // endregion
 
     // region CAPABILITY WRAPPER
-    protected class PotionQuiverItemWrapper extends FluidContainerItemWrapper implements IArcheryAmmoItem {
+    public static class PotionQuiverItemWrapper extends FluidContainerItemWrapper implements IArcheryAmmoItem {
 
-        private final LazyOptional<IArcheryAmmoItem> holder = LazyOptional.of(() -> this);
+        final PotionQuiverItem quiverItem;
 
-        PotionQuiverItemWrapper(ItemStack containerIn, IFluidContainerItem itemIn) {
+        PotionQuiverItemWrapper(ItemStack containerIn, PotionQuiverItem itemIn) {
 
             super(containerIn, itemIn);
+            this.quiverItem = itemIn;
         }
 
         @Override
@@ -264,8 +252,8 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
 
             if (shooter != null) {
                 if (!shooter.abilities.instabuild) {
-                    removeArrows(container, 1, false);
-                    drain(fluidPerUse, getMode(container) == 1 ? EXECUTE : SIMULATE);
+                    quiverItem.removeArrows(container, 1, false);
+                    drain(quiverItem.fluidPerUse, quiverItem.getMode(container) == 1 ? EXECUTE : SIMULATE);
                 }
             }
         }
@@ -273,13 +261,13 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         @Override
         public AbstractArrow createArrowEntity(Level world, Player shooter) {
 
-            FluidStack fluid = getFluid(container);
+            FluidStack fluid = quiverItem.getFluid(container);
             ItemStack arrowStack;
 
-            if (getMode(container) == 1 && fluid != null && fluid.getAmount() >= fluidPerUse) {
+            if (quiverItem.getMode(container) == 1 && fluid != null && fluid.getAmount() >= quiverItem.fluidPerUse) {
                 List<MobEffectInstance> effects = new ArrayList<>();
                 for (MobEffectInstance effect : PotionUtils.getAllEffects(fluid.getTag())) {
-                    effects.add(new MobEffectInstance(effect.getEffect(), getEffectDuration(effect, container), getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));
+                    effects.add(new MobEffectInstance(effect.getEffect(), quiverItem.getEffectDuration(effect, container), quiverItem.getEffectAmplifier(effect, container), effect.isAmbient(), effect.isVisible()));
                 }
                 arrowStack = PotionUtils.setCustomEffects(new ItemStack(Items.TIPPED_ARROW), effects);
                 return ((TippedArrowItem) arrowStack.getItem()).createArrow(world, arrowStack, shooter);
@@ -291,10 +279,10 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
         @Override
         public boolean isEmpty(Player shooter) {
 
-            if (isCreative(container, ITEM) || (shooter != null && shooter.abilities.instabuild)) {
+            if (quiverItem.isCreative(container, ITEM) || (shooter != null && shooter.abilities.instabuild)) {
                 return false;
             }
-            return getStoredArrows(container) <= 0;
+            return quiverItem.getStoredArrows(container) <= 0;
         }
 
         @Override
@@ -303,17 +291,6 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
             return shooter != null && shooter.abilities.instabuild || getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, bow) > 0;
         }
 
-        // region ICapabilityProvider
-        @Override
-        @Nonnull
-        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
-
-            if (cap == CapabilityArchery.AMMO_ITEM_CAPABILITY) {
-                return CapabilityArchery.AMMO_ITEM_CAPABILITY.orEmpty(cap, holder);
-            }
-            return super.getCapability(cap, side);
-        }
-        // endregion
     }
     // endregion
 }

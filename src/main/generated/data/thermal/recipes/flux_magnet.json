@@ -6,7 +6,7 @@
       "tag": "forge:ingots/iron"
     },
     "L": {
-      "tag": "forge:ingots/lead"
+      "tag": "c:ingots/lead"
     },
     "P": {
       "item": "thermal:rf_coil"
@@ -22,6 +22,5 @@
   ],
   "result": {
     "item": "thermal:flux_magnet"
-  },
-  "show_notification": true
+  }
 }

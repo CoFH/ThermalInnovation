@@ -4,11 +4,10 @@ import cofh.core.common.item.IMultiModeItem;
 import cofh.core.compat.curios.CuriosProxy;
 import cofh.core.util.ProxyUtils;
 import cofh.lib.api.item.IColorableItem;
+import cofh.lib.api.item.IEnergyContainerItem;
 import cofh.lib.util.Utils;
 import cofh.thermal.core.common.config.ThermalCoreConfig;
 import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
-import cofh.thermal.lib.common.item.IFlexibleEnergyContainerItem;
-import cofh.thermal.lib.util.ThermalEnergyHelper;
 import com.google.common.collect.Iterables;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -26,6 +25,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ import java.util.List;
 import static cofh.lib.util.helpers.StringHelper.getTextComponent;
 import static cofh.thermal.lib.util.ThermalAugmentRules.ENERGY_STORAGE_VALIDATOR;
 
-public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IFlexibleEnergyContainerItem, Vanishable {
+public class RFCapacitorItem extends EnergyContainerItemAugmentable implements IColorableItem, DyeableLeatherItem, IMultiModeItem, IEnergyContainerItem, Vanishable {
 
     protected static final int EQUIPMENT = 0;
     protected static final int INVENTORY = 1;
@@ -101,8 +101,10 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
             if (equip.isEmpty() || equip.equals(stack)) {
                 continue;
             }
-            equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
-                    .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
+            var handler = equip.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (handler != null) {
+                this.extractEnergy(stack, handler.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild);
+            }
         }
         if (getMode(stack) != INVENTORY) {
             CuriosProxy.getAllWorn(player).ifPresent(c -> {
@@ -111,8 +113,10 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
                     if (equip.isEmpty() || equip.equals(stack)) {
                         continue;
                     }
-                    equip.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), null)
-                            .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
+                    var handler = equip.getCapability(Capabilities.EnergyStorage.ITEM);
+                    if (handler != null) {
+                        this.extractEnergy(stack, handler.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild);
+                    }
                 }
             });
         }

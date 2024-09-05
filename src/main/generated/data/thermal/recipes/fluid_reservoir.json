@@ -25,6 +25,5 @@
   ],
   "result": {
     "item": "thermal:fluid_reservoir"
-  },
-  "show_notification": true
+  }
 }

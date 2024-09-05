@@ -2,9 +2,9 @@ package cofh.thermal.innovation.client.event;
 
 import cofh.thermal.innovation.client.model.FluidReservoirItemModel;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
 
 import static cofh.lib.util.constants.ModIds.ID_THERMAL_INNOVATION;
 
