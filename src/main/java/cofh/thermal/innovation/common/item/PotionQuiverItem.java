@@ -1,5 +1,6 @@
 package cofh.thermal.innovation.common.item;
 
+import cofh.core.common.capability.CoreCapabilities;
 import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.FluidHelper;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -237,6 +240,12 @@ public class PotionQuiverItem extends FluidContainerItemAugmentable implements I
     // endregion
 
     // region CAPABILITY WRAPPER
+    public void registerCapabilities(RegisterCapabilitiesEvent event) {
+
+        event.registerItem(Capabilities.FluidHandler.ITEM, (itemStack, context) -> new PotionQuiverItemWrapper(itemStack, this), this);
+        event.registerItem(CoreCapabilities.ArcheryHandler.AMMO, (itemStack, context) -> new PotionQuiverItemWrapper(itemStack, this), this);
+    }
+
     public static class PotionQuiverItemWrapper extends FluidContainerItemWrapper implements IArcheryAmmoItem {
 
         final PotionQuiverItem quiverItem;

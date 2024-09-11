@@ -1,5 +1,6 @@
 package cofh.thermal.innovation.common.item;
 
+import cofh.core.common.capability.CoreCapabilities;
 import cofh.core.common.item.IMultiModeItem;
 import cofh.core.util.ProxyUtils;
 import cofh.core.util.helpers.AreaEffectHelper;
@@ -34,6 +35,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.TierSortingRegistry;
 import net.neoforged.neoforge.common.ToolAction;
 
@@ -287,6 +290,12 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
     // endregion
 
     // region CAPABILITY WRAPPER
+    public void registerCapabilities(RegisterCapabilitiesEvent event) {
+
+        event.registerItem(Capabilities.EnergyStorage.ITEM, (itemStack, context) -> new RFDrillItemWrapper(itemStack, this), this);
+        event.registerItem(CoreCapabilities.AreaEffectHandler.ITEM, (itemStack, context) -> new RFDrillItemWrapper(itemStack, this), this);
+    }
+
     protected class RFDrillItemWrapper extends EnergyContainerItemWrapper implements IAreaEffectHandler {
 
         protected final RFDrillItem drill;
