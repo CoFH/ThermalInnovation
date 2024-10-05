@@ -52,7 +52,7 @@ public class RFPumpItem extends EnergyContainerItemAugmentable implements IMulti
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("active"), (stack, world, entity, seed) -> getEnergyStored(stack) > 0 && hasActiveTag(stack) ? 1F : 0F);
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
-        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
+        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
     }
 
     @Override

@@ -79,7 +79,7 @@ public class RFDrillItem extends EnergyContainerItemAugmentable implements IColo
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
-        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);
+        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT);
     }
 
     @Override

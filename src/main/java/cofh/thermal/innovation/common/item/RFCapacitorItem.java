@@ -47,7 +47,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
         ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, world, entity, seed) -> (isActive(stack) ? 0.5F : 0) + (getMode(stack) / 8.0F));
         ProxyUtils.registerColorable(this);
 
-        numSlots = () -> ThermalCoreConfig.storageAugments;
+        numSlots = () -> ThermalCoreConfig.storageAugmentsNoFilter;
         augValidator = ENERGY_STORAGE_VALIDATOR;
     }
 

@@ -73,7 +73,7 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
-        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
+        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_RF, TAG_AUGMENT_TYPE_AREA_EFFECT, TAG_AUGMENT_TYPE_FILTER);
     }
 
     @Override
@@ -243,6 +243,12 @@ public class RFMagnetItem extends EnergyContainerItemAugmentable implements ICol
     // endregion
 
     // region IAugmentableItem
+    @Override
+    public boolean hasFilterSlot() {
+
+        return true;
+    }
+
     @Override
     public void updateAugmentState(ItemStack container, List<ItemStack> augments) {
 

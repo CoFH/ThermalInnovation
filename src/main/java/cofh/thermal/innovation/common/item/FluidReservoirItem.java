@@ -58,7 +58,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalCoreConfig.storageAugments;
-        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_UPGRADE, TAG_AUGMENT_TYPE_FLUID);
+        augValidator = createAllowValidator(TAG_AUGMENT_TYPE_FLUID);
     }
 
     @Override
