@@ -16,7 +16,8 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-import static cofh.lib.util.constants.NBTTags.*;
+import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_AREA_EFFECT;
+import static cofh.lib.util.constants.NBTTags.TAG_AUGMENT_TYPE_RF;
 import static cofh.thermal.core.common.config.ThermalCoreConfig.storageAugments;
 import static cofh.thermal.lib.util.ThermalAugmentRules.createAllowValidator;
 
