@@ -26,6 +26,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -74,7 +75,7 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
 
-        return useDelegate(stack, context.getPlayer()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        return useOnBlockDelegate(stack, context) ? InteractionResult.SUCCESS : useDelegate(stack, context.getPlayer()) ? InteractionResult.SUCCESS : InteractionResult.PASS;
     }
 
     @Override
@@ -119,6 +120,21 @@ public class RFCapacitorItem extends EnergyContainerItemAugmentable implements I
     }
 
     // region HELPERS
+    protected boolean useOnBlockDelegate(ItemStack stack, UseOnContext context) {
+
+        Player player = context.getPlayer();
+        if (player != null && !player.isSecondaryUseActive()) {
+            BlockEntity tile = context.getLevel().getBlockEntity(context.getClickedPos());
+            if (tile != null) {
+                int extract = this.getExtract(stack);
+                tile.getCapability(ThermalEnergyHelper.getBaseEnergySystem(), context.getClickedFace())
+                        .ifPresent(e -> this.extractEnergy(stack, e.receiveEnergy(Math.min(extract, this.getEnergyStored(stack)), false), player.abilities.instabuild));
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected boolean useDelegate(ItemStack stack, Player player) {
 
         if (Utils.isFakePlayer(player)) {
