@@ -3,6 +3,7 @@ package cofh.thermal.innovation.common.config;
 import cofh.core.common.config.IBaseConfig;
 import cofh.core.common.item.EnergyContainerItem;
 import cofh.core.common.item.FluidContainerItem;
+import cofh.thermal.innovation.common.item.RFGrappleItem;
 import cofh.thermal.innovation.common.item.RFMagnetItem;
 import cofh.thermal.lib.common.item.EnergyContainerItemAugmentable;
 import net.minecraft.world.item.Item;
@@ -88,6 +89,26 @@ public class TInoToolConfig implements IBaseConfig {
 
         builder.pop();
 
+        builder.push("Hook");
+
+        rfGrappleMaxEnergy = builder
+                .comment("This sets the maximum base RF capacity for the Fluxhook.")
+                .defineInRange("Base Capacity", 50000, 1000, 10000000);
+
+        rfGrappleTransfer = builder
+                .comment("This sets the base RF/t transfer for the Fluxhook.")
+                .defineInRange("Base Transfer", 1000, 1, 10000000);
+
+        rfGrappleEnergyPerUse = builder
+                .comment("This sets the energy required to deploy (right click) the Fluxhook.")
+                .defineInRange("Energy Per Use", 200, 1, 10000);
+
+        rfGrappleEnergyPerTick = builder
+                .comment("This sets the energy used per tick while the Fluxhook pulls the player.")
+                .defineInRange("Energy Per Tick", 50, 1, 1000);
+
+        builder.pop();
+
         builder.push("Reservoir");
 
         fluidReservoirCapacity = builder
@@ -122,6 +143,7 @@ public class TInoToolConfig implements IBaseConfig {
         setEnergyParams(ID_FLUX_SAW, rfSawMaxEnergy.get(), rfSawTransfer.get());
         setEnergyParams(ID_FLUX_CAPACITOR, rfCapacitorMaxEnergy.get(), rfCapacitorTransfer.get());
         setEnergyParams(ID_FLUX_MAGNET, rfMagnetMaxEnergy.get(), rfMagnetTransfer.get());
+        setEnergyParams(ID_FLUX_GRAPPLE, rfGrappleMaxEnergy.get(), rfGrappleTransfer.get());
 
         setFluidCapacity(ID_FLUID_RESERVOIR, fluidReservoirCapacity.get());
         setFluidCapacity(ID_POTION_INFUSER, potionInfuserCapacity.get());
@@ -131,6 +153,8 @@ public class TInoToolConfig implements IBaseConfig {
         setEnergyPerUse(ID_FLUX_SAW, rfSawEnergyPerUse.get());
 
         setMagnetParameters(ID_FLUX_MAGNET, rfMagnetObeyPickupDelay.get(), rfMagnetEnergyPerItem.get(), rfMagnetEnergyPerUse.get());
+
+        setGrappleParameters(ID_FLUX_GRAPPLE, rfGrappleEnergyPerUse.get(), rfGrappleEnergyPerTick.get());
     }
 
     private void setEnergyParams(String id, int energy, int transfer) {
@@ -168,6 +192,15 @@ public class TInoToolConfig implements IBaseConfig {
         }
     }
 
+    private void setGrappleParameters(String id, int energyPerUse, int energyPerTick) {
+
+        Item item = ITEMS.get(id);
+        if (item instanceof RFGrappleItem grap) {
+            grap.setEnergyPerUse(energyPerUse);
+            grap.setEnergyPerTick(energyPerTick);
+        }
+    }
+
     // region CONFIG VARIABLES
     private Supplier<Integer> rfDrillMaxEnergy;
     private Supplier<Integer> rfDrillTransfer;
@@ -185,6 +218,11 @@ public class TInoToolConfig implements IBaseConfig {
     private Supplier<Integer> rfMagnetEnergyPerItem;
     private Supplier<Integer> rfMagnetEnergyPerUse;
     private Supplier<Boolean> rfMagnetObeyPickupDelay;
+
+    private Supplier<Integer> rfGrappleMaxEnergy;
+    private Supplier<Integer> rfGrappleTransfer;
+    private Supplier<Integer> rfGrappleEnergyPerUse;
+    private Supplier<Integer> rfGrappleEnergyPerTick;
 
     private Supplier<Integer> fluidReservoirCapacity;
     private Supplier<Integer> potionInfuserCapacity;

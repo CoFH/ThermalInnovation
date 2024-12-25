@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "tag": "forge:gears/gold"
+    },
+    "G": {
+      "tag": "forge:gears/tin"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "P": {
+      "item": "thermal:rf_coil"
+    },
+    "X": {
+      "item": "thermal:grapple_hook"
+    }
+  },
+  "pattern": [
+    " X ",
+    "ICI",
+    "GPG"
+  ],
+  "result": {
+    "item": "thermal:flux_grapple"
+  },
+  "show_notification": true
+}
