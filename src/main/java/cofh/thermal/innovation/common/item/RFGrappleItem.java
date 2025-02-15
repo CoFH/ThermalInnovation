@@ -412,7 +412,7 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
         @Override
         protected Vec3 pos(LivingEntity entity, float partialTick) {
 
-            return entity.getEyePosition(partialTick).subtract(pos).scale(1 - MathHelper.cos(MathHelper.F_PI * 0.5F * (age + partialTick) / life)).add(pos);
+            return entity.getEyePosition(partialTick).subtract(pos).scale(1 - MathHelper.cos(MathHelper.F_HALF_PI * (age + partialTick) / life)).add(pos);
         }
 
         @Override
