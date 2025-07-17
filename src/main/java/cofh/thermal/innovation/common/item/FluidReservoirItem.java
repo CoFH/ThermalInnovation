@@ -94,7 +94,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         }
         Player player = (Player) entityIn;
         for (ItemStack equip : player.getAllSlots()) {
-            if (equip.isEmpty() || equip.equals(stack)) {
+            if (equip.isEmpty() || equip.equals(stack) || equip.getCount() > 1) {
                 continue;
             }
             equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
@@ -103,7 +103,7 @@ public class FluidReservoirItem extends FluidContainerItemAugmentable implements
         CuriosProxy.getAllWorn(player).ifPresent(c -> {
             for (int i = 0; i < c.getSlots(); ++i) {
                 ItemStack equip = c.getStackInSlot(i);
-                if (equip.isEmpty() || equip.equals(stack)) {
+                if (equip.isEmpty() || equip.equals(stack) || equip.getCount() > 1) {
                     continue;
                 }
                 equip.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM, null)
