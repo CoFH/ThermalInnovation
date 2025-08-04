@@ -53,6 +53,7 @@ import net.minecraftforge.common.util.Lazy;
 import org.joml.Quaternionf;
 import org.joml.Vector4f;
 
+import javax.annotation.Nullable;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
@@ -82,7 +83,7 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
         super(builder, maxEnergy, maxTransfer);
 
         //ProxyUtils.registerItemModelProperty(this, new ResourceLocation("color"), (stack, world, entity, seed) -> (hasCustomColor(stack) ? 1.0F : 0));
-        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), (stack, level, entity, seed) -> seed == -69420 ? 0.5F : (HOOKS.client().containsKey(entity) ? 0.75F : 0)); //HOOKS.client().containsKey(entity) ? 0.5F : 0);
+        ProxyUtils.registerItemModelProperty(this, new ResourceLocation("state"), this::getModelState);
         ProxyUtils.registerColorable(this);
 
         numSlots = () -> ThermalCoreConfig.toolAugments;
@@ -126,12 +127,13 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
         return InteractionResult.CONSUME;
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int itemSlot, boolean isSelected) {
+    public static void tickPlayerHook(Player player) {
 
-        if (entity instanceof Player player) {
-            Hook hook = HOOKS.get(level).remove(player);
-            if (hook != null) {
+        Level level = player.level;
+        Hook hook = HOOKS.get(level).remove(player);
+        if (hook != null) {
+            ItemStack stack = player.getItemInHand(hook.hand);
+            if (stack.getItem() instanceof RFGrappleItem) {
                 hook = hook.tick(level, player, stack);
                 if (hook != null) {
                     HOOKS.get(level).put(player, hook);
@@ -166,7 +168,6 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
         LivingEntity holder = CoreClientEvents.itemHolder;
         if (holder != null && RenderHelper.isHandTransform(transform)) {
             Hook hook = HOOKS.client().get(holder);
-            poseStack.pushPose();
             Vector4f start;
             if (transform.firstPerson()) {
                 boolean sprint = holder.isSprinting();
@@ -182,9 +183,8 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
             }
             poseStack.last().pose().transform(start);
             RENDER_INFO.add(new RenderInfo(hook, holder, start));
-            poseStack.popPose();
         }
-        RenderHelper.renderItem().renderStatic(stack, transform, packedLight, overlayCoord, poseStack, buffer, null, -69420);
+        RenderHelper.renderItem().renderStatic(stack, transform, packedLight, overlayCoord, poseStack, buffer, null, -1);
     }
 
     public static void renderHooks(PoseStack stack, MultiBufferSource buffer, float partialTick) {
@@ -214,6 +214,20 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
                 VFXHelper.renderBeam(info.start, end, VFXHelper.normal(stack), buffer, RenderHelper.FULL_BRIGHT, 0.2F, OUTER, INNER);
             }
         }
+    }
+
+    protected float getModelState(ItemStack stack, @Nullable Level level, @Nullable LivingEntity entity, int seed) {
+
+        if (seed == -1) {
+            return 0.5F;
+        }
+        if (entity != null) {
+            Hook hook = HOOKS.client().get(entity);
+            if (hook != null && entity.getItemInHand(hook.hand) == stack) {
+                return 0.75F;
+            }
+        }
+        return 0F;
     }
     // endregion
 
