@@ -26,6 +26,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,8 +34,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -44,6 +43,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -116,7 +116,7 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
 
     private InteractionResult useDelegate(Level level, Player player, ItemStack stack, InteractionHand hand) {
 
-        if (player != null && !Utils.isFakePlayer(player)) {
+        if (player != null && !Utils.isFakePlayer(player) && !player.getCooldowns().isOnCooldown(this)) {
             Hook existing = HOOKS.get(level).get(player);
             if (existing != null) {
                 HOOKS.get(level).put(player, existing.retract(player, stack));
@@ -223,8 +223,11 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
         }
         if (entity != null) {
             Hook hook = HOOKS.client().get(entity);
-            if (hook != null && entity.getItemInHand(hook.hand) == stack) {
-                return 0.75F;
+            if (hook != null) {
+                ItemStack held = entity.getItemInHand(hook.hand); // not necessarily the same as the ItemStack argument!!
+                if (matches(held, stack)) {
+                    return 0.75F;
+                }
             }
         }
         return 0F;
@@ -276,10 +279,19 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
 
     // region ITrackedItem
     @Override
+    public void onSwapTo(Player player, InteractionHand hand, @Nullable ItemStack from, ItemStack to) {
+
+        if (!player.level.isClientSide && !to.getOrCreateTag().contains(TAG_ID, Tag.TAG_LONG)) {
+            to.getOrCreateTag().putLong(TAG_ID, RandomSupport.generateUniqueSeed());
+        }
+    }
+
+    @Override
     public void onSwapFrom(Player player, InteractionHand hand, ItemStack from, ItemStack to, int duration) {
 
-        Hook hook = HOOKS.get(player.level).remove(player);
-        if (hook != null) {
+        Hook hook = HOOKS.get(player.level).get(player);
+        if (hook != null && hand.equals(hook.hand)) {
+            HOOKS.get(player.level).remove(player);
             ReturnHook ret = hook.retract(player, from);
             player.getCooldowns().addCooldown(this, getCooldown(from) + ret.life - ret.age);
         }
@@ -288,7 +300,24 @@ public class RFGrappleItem extends EnergyContainerItemAugmentable implements IFl
     @Override
     public boolean matches(ItemStack from, ItemStack to) {
 
-        return Utils.matchesExcluding(from, to, TAG_ENERGY);
+        if (from.equals(to)) {
+            return true;
+        }
+        if (from.getItem() != to.getItem() || from.getCount() != to.getCount()) {
+            return false;
+        }
+        CompoundTag aTag = from.getTag();
+        CompoundTag bTag = to.getTag();
+        if (aTag == null) {
+            return bTag == null;
+        }
+        if (bTag == null) {
+            return false;
+        }
+        if (aTag.contains(TAG_ID, Tag.TAG_LONG)) {
+            return bTag.contains(TAG_ID, Tag.TAG_LONG) && aTag.getLong(TAG_ID) == bTag.getLong(TAG_ID);
+        }
+        return !bTag.contains(TAG_ID, Tag.TAG_LONG);
     }
     // endregion
 
